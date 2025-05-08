@@ -84,7 +84,7 @@ public class ProjetoController {
     }
 
     @Operation(summary = "Buscar atividades de um projeto pelo título")
-    @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{titulo}/atividades", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> getAtividades(@PathVariable String titulo) {
         try {
             List<AtividadeOutputDTO> atividadesDTOs = projetoService.getAtividades(titulo);
@@ -99,7 +99,7 @@ public class ProjetoController {
     }
 
     @Operation(summary = "Buscar usuários de um projeto pelo título")
-    @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{titulo}/usuarios", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UsuarioOutputDTO>> getUsuarios(@PathVariable String titulo) {
         try {
             List<UsuarioOutputDTO> usuariosDTOs = projetoService.getUsuarios(titulo);
@@ -160,7 +160,7 @@ public class ProjetoController {
     }
 
     @Operation(summary = "Filtrar Atividades por Título do Projeto e Prioridade")
-    @GetMapping(value = "/projetos/atividades/filtrar", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/projetos/atividades/filtrar-prioridade", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> filtrarAtividades(
             @RequestParam(required = true) String titulo,
             @RequestParam(required = true) String prioridade
@@ -178,8 +178,8 @@ public class ProjetoController {
         }
     }
 
-    @Operation(summary = "Filtrar Atividades por Título do Projeto e Prioridade")
-    @GetMapping(value = "/projetos/atividades/filtrar", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Filtrar Atividades por Título do Projeto e Status")
+    @GetMapping(value = "/projetos/atividades/filtrar-status", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> filtrarAtividadesPorStatus(
             @RequestParam(required = true) String titulo,
             @RequestParam(required = true) String status

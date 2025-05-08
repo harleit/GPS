@@ -65,22 +65,7 @@ public class AtividadeController {
     }
 
     @Operation(summary = "Avaliar uma atividade existente")
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AtividadeOutputDTO> avaliarAtividade(@PathVariable Long id, @RequestBody AtividadeInputDTO atividadeInputDTO) {
-        try {
-            AtividadeOutputDTO atividadeDTO = atividadeService.update(id, atividadeInputDTO);
-            if (atividadeDTO != null) {
-                return new ResponseEntity<>(atividadeDTO, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Operation(summary = "Avaliar uma atividade existente")
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}/avaliar", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AtividadeOutputDTO> avaliarAtividade(
             @PathVariable Long id,
             @RequestBody Map<String, String> input
@@ -89,7 +74,6 @@ public class AtividadeController {
             String avaliacao = input.get("avaliacao");
             String observacoes = input.get("observacoes");
 
-            // Chamando o método do serviço
             AtividadeOutputDTO atividadeDTO = atividadeService.avaliarAtividade(id, avaliacao, observacoes);
 
             if (atividadeDTO != null) {
@@ -101,7 +85,6 @@ public class AtividadeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @Operation(summary = "Buscar uma atividade pelo ID")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
