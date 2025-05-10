@@ -44,6 +44,7 @@ public class ProjetoController {
 
     @Operation(summary = "Criar um novo projeto")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<ProjetoOutputDTO> create(@RequestBody ProjetoInputDTO projetoInput) {
         try {
             ProjetoOutputDTO projeto = projetoService.create(projetoInput);
