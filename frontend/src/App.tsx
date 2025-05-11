@@ -19,6 +19,9 @@ export function Layout() {
         <Link to="project/new ">
         <span className="font-semibold">Novo Projeto</span>
         </Link>
+        <Link to="user/new ">
+        <span className="font-semibold">Criar conta</span>
+        </Link>
       </div>
     </ResizablePanel>
     <ResizableHandle withHandle />

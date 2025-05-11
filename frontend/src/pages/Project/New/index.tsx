@@ -169,7 +169,7 @@ export function NewProject() {
         </div>
 
         {/* Botão de submit */}
-        <Button type="submit">Cadastrar</Button>
+        <Button className = "cursor-pointer" type="submit">Cadastrar</Button>
       </form>
     </div>
   );
