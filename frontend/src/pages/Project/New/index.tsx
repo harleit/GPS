@@ -49,7 +49,7 @@ export function NewProject() {
       const payload = {
         titulo: data.projectName,
         descricao: data.projectDescription,
-        dataInicio: data.projectInitialDate.toISOString(), // Converte a data para string
+        dataInicio: data.projectInitialDate, // Converte a data para string
         status: data.projectStatus,
         gerente: data.gerente,
       };
