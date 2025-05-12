@@ -1,4 +1,3 @@
-import { DatePicker } from "@/components/custom/datePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,18 +13,51 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProject } from "@/services/project.service";
+import {
+  Activity,
+  CalendarPlus,
+  FileText,
+  FolderKanban,
+  User,
+} from "lucide-react";
 
 const schema = z.object({
-  projectName: z.string().min(1, { message: "Nome obrigatório" }),
-  projectDescription: z.string().min(1, { message: "Descrição obrigatória" }),
-  projectInitialDate: z.date({ required_error: "Data obrigatória" }),
+  projectName: z
+    .string()
+    .min(3, { message: "O campo deve ter pelo menos 3 caracteres" })
+    .max(50, { message: "O campo deve ter no máximo 50 caracteres" }),
+  projectDescription: z
+    .string()
+    .min(3, { message: "O campo deve ter pelo menos 3 caracteres" })
+    .max(200, { message: "O campo deve ter no máximo 200 caracteres" }),
+  projectInitialDate: z.string().refine(
+    (value) => {
+      // Verifica formato yyyy-mm-dd
+      const regex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!regex.test(value)) return false;
+
+      // Verifica se é uma data válida
+      const [year, month, day] = value.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+      );
+    },
+    { message: "Data inválida" }
+  ),
   projectStatus: z.enum(
     ["planejado", "em_andamento", "concluido", "cancelado"],
     {
       errorMap: () => ({ message: "Selecione um status" }),
     }
   ),
-  gerente: z.string().min(1, { message: "Gerente obrigatório" }), // Adicionado
+  gerente: z
+    .string()
+    .email({ message: "E-mail inválido." })
+    .min(3, { message: "O campo deve ter pelo menos 3 caracteres" })
+    .max(50, { message: "O campo deve ter no máximo 50 caracteres" }), // Adicionado
 });
 
 export function NewProject() {
@@ -33,10 +65,10 @@ export function NewProject() {
     control,
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     reset,
   } = useForm<z.infer<typeof schema>>({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: zodResolver(schema),
     defaultValues: {
       projectStatus: "em_andamento",
@@ -71,6 +103,39 @@ export function NewProject() {
     }
   };
 
+  // Função de formatação revisada
+  const formatDateString = (value: string): string => {
+    // Remove todos os caracteres não numéricos
+    const clean = value.replace(/[^0-9]/g, "");
+    // Limita a 8 dígitos (YYYYMMDD)
+    const digits = clean.slice(0, 8);
+    let formatted = "";
+
+    // Parte do ano (4 dígitos)
+    const year = digits.slice(0, 4);
+    formatted += year;
+
+    // Adiciona o primeiro hífen após o ano, se houver pelo menos 4 dígitos
+    if (year.length === 4) {
+      formatted += "-";
+    }
+
+    // Parte do mês (2 dígitos)
+    const month = digits.slice(4, 6).padStart(2, "0");
+    formatted += month;
+
+    // Adiciona o segundo hífen após o mês, se houver pelo menos 6 dígitos
+    if (digits.length >= 6) {
+      formatted += "-";
+    }
+
+    // Parte do dia (2 dígitos)
+    const day = digits.slice(6, 8).padStart(2, "0");
+    formatted += day;
+
+    return formatted;
+  };
+
   return (
     <div className="flex justify-center w-1/2 p-[10px] bg-gray-50 rounded-lg shadow-lg">
       <form
@@ -78,61 +143,79 @@ export function NewProject() {
         className="flex flex-col gap-8 w-full"
       >
         <div>
-          <label htmlFor="projectName" className="block mb-2">
-            Nome do Projeto
-          </label>
+          <div className="flex gap-2 items-center">
+            <FolderKanban className="text-blue-500" size={18} />
+            <label htmlFor="projectName" className="block mb-2">
+              Nome do Projeto
+            </label>
+          </div>
           <Input
             {...register("projectName")}
             placeholder="Digite o nome do projeto"
             className="w-full" // Adapta o tamanho do input
           />
           {errors.projectName ? (
-            <p className="text-red-500">{errors.projectName.message}</p>
+            <p className="text-sm text-red-500">{errors.projectName.message}</p>
           ) : (
-            <p className="text-sm text-gray-500">
-              Esse será o nome que seu projeto aparecerá.
+            <p className="text-sm text-blue-500">
+              Mínimo 3 | Máximo 50 caracteres.
             </p>
           )}
         </div>
 
         <div>
-          <label htmlFor="projectDescription" className="block mb-2">
-            Descrição do Projeto
-          </label>
+          <div className="flex gap-2 items-center">
+            <FileText className="text-blue-500" size={18} />
+            <label htmlFor="projectDescription" className="block mb-2">
+              Descrição do Projeto
+            </label>
+          </div>
           <Textarea
             {...register("projectDescription")}
             placeholder="Digite a descrição do projeto"
             className="w-full" // Adapta o tamanho do input
           />
           {errors.projectDescription ? (
-            <p className="text-red-500">{errors.projectDescription.message}</p>
+            <p className="text-sm text-red-500">
+              {errors.projectDescription.message}
+            </p>
           ) : (
-            <p className="text-sm text-gray-500">
-              Esse será a descrição do seu projeto.
+            <p className="text-sm text-blue-500">
+              Mínimo 3 | Máximo 200 caracteres.
             </p>
           )}
         </div>
 
-        <div className="flex flex-col">
-          <label htmlFor="projectInitialDate">Data Inicial</label>
-          <Controller
-            name="projectInitialDate"
-            control={control}
-            render={({ field }) => (
-              <DatePicker
-                selected={field.value}
-                onSelect={(date) => field.onChange(date)}
-              />
-            )}
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <CalendarPlus className="text-blue-500" size={18} />
+            <label htmlFor="projectInitialDate">Data Inicial</label>
+          </div>
+          <Input
+            {...register("projectInitialDate")}
+            placeholder="yyyy-mm-dd"
+            className="w-full"
+            onChange={(e) => {
+              const rawValue = e.target.value;
+              const formattedValue = formatDateString(rawValue);
+              // Atualiza o formulário com o valor formatado
+              const { onChange } = register("projectInitialDate");
+              onChange({ target: { value: formattedValue } });
+            }}
           />
           {errors.projectInitialDate && (
-            <p className="text-red-500">{errors.projectInitialDate.message}</p>
+            <p className="text-sm text-red-500">
+              {errors.projectInitialDate.message}
+            </p>
           )}
         </div>
 
         {/* Campo de Status */}
-        <div>
-          <label htmlFor="projectStatus">Status</label>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <Activity className="text-blue-500" size={18} />
+            <label htmlFor="projectStatus">Status</label>
+          </div>
           <Controller
             name="projectStatus"
             control={control}
@@ -151,25 +234,36 @@ export function NewProject() {
             )}
           />
           {errors.projectStatus && (
-            <p className="text-red-500">{errors.projectStatus.message}</p>
+            <p className="text-sm text-red-500">
+              {errors.projectStatus.message}
+            </p>
           )}
         </div>
 
         {/* Campo GERENTE */}
-        <div>
-          <label htmlFor="gerente">Gerente</label>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <User className="text-blue-500" size={18} />
+            <label htmlFor="gerente">Gerente</label>
+          </div>
           <Input
             {...register("gerente")}
             placeholder="Nome do gerente"
             className="w-full"
           />
-          {errors.gerente && (
-            <p className="text-red-500">{errors.gerente.message}</p>
+          {errors.gerente ? (
+            <p className="text-sm text-red-500">{errors.gerente.message}</p>
+          ) : (
+            <p className="text-sm text-blue-500">
+              Digite o e-mail do gerente do projeto.
+            </p>
           )}
         </div>
 
         {/* Botão de submit */}
-        <Button className = "cursor-pointer" type="submit">Cadastrar</Button>
+        <Button className="cursor-pointer, bg-blue-500" type="submit">
+          Cadastrar
+        </Button>
       </form>
     </div>
   );
