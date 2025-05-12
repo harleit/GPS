@@ -18,6 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/api/usuario")
 @Tag(name = "Usuário", description = "API para gerenciamento de usuários")
+@CrossOrigin(origins="*")
 public class UsuarioController {
 
     @Autowired

@@ -18,6 +18,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api/atividade")
 @Tag(name = "Atividade", description = "API para gerenciamento de atividades")
+@CrossOrigin(origins="*")
 public class AtividadeController {
 
     @Autowired

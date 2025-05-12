@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/api/projeto")
 @Tag(name = "Projeto", description = "API para gerenciamento de projetos")
+@CrossOrigin(origins="*")
 public class ProjetoController {
 
     @Autowired
