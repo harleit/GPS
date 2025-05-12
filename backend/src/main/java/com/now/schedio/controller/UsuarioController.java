@@ -40,6 +40,7 @@ public class UsuarioController {
 
     @Operation(summary = "Criar um novo usuário")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "http://localhost:5173")
     public ResponseEntity<UsuarioOutputDTO> create(@RequestBody UsuarioInputDTO usuarioInput) {
         try {
             UsuarioOutputDTO usuarioDTO = usuarioService.create(usuarioInput);
