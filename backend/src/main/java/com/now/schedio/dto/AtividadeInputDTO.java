@@ -5,14 +5,18 @@ import com.now.schedio.model.Projeto;
 import com.now.schedio.model.Usuario;
 import com.now.schedio.repository.ProjetoRepository;
 import com.now.schedio.repository.UsuarioRepository;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
 public class AtividadeInputDTO {
     private String nome;
     private String descricao;
+    @Schema(example = "yyyy-MM-dd")
     private String dataInicio;
+    @Schema(example = "yyyy-MM-dd")
     private String dataFimPrevista;
+    @Schema(example = "pendente, em_andamento ou concluida")
     private String status = "pendente";
     private String projetoTitulo;
     private String responsavelEmail;
