@@ -5,7 +5,7 @@ import {
   ResizablePanelGroup,
 } from "./components/ui/resizable";
 import LogoSchedio from "../src/assets/logo-schedio.svg";
-import { DiamondPlus, Info } from "lucide-react";
+import { SquareKanban } from "lucide-react";
 
 export function Layout() {
   const location = useLocation();
@@ -13,9 +13,12 @@ export function Layout() {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="min-h-[100vh] max-w-md rounded-lg border md:min-w-[100vw]"
+      className="max-h-[100vh] max-w-md rounded-lg border md:min-w-[100vw]"
     >
-      <ResizablePanel style={{ maxWidth: "300px", minWidth: "100px" }}>
+      <ResizablePanel
+        className="h-[100vh]"
+        style={{ maxWidth: "300px", minWidth: "100px" }}
+      >
         <div className="flex flex-col h-full items-center justify-between p-6 gap-6 bg-blue-950">
           {/* Header */}
           <div className="w-full h-20">
@@ -35,15 +38,15 @@ export function Layout() {
               Sobre nós
             </Link> */}
             <Link
-              to="/project/new"
+              to="/project"
               className={`flex gap-4 items-center font-semibold text-white px-4 py-2 rounded-lg transition-colors duration-300 ${
-                location.pathname === "/project/new"
+                location.pathname === "/project"
                   ? "bg-blue-800 rounded-lg p-2"
                   : ""
               }`}
             >
-              <DiamondPlus />
-              Novo Projeto
+              <SquareKanban />
+              Projetos
             </Link>
           </div>
           {/* Footer */}
@@ -54,7 +57,7 @@ export function Layout() {
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={75}>
+      <ResizablePanel className="h-[100vh]" defaultSize={75}>
         <div className="flex h-full items-center justify-center p-6">
           <Outlet />
         </div>
