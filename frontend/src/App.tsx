@@ -23,7 +23,7 @@ export function Layout() {
           </div>
           {/* Content */}
           <div className="flex flex-col p-6 gap-6 h-100 w-full bg-blue-900/50 rounded-3xl overflow-y-auto">
-            <Link
+            {/* <Link
               to="/about"
               className={`flex gap-4 items-center font-semibold text-white px-4 py-2 rounded-lg transition-colors duration-300 ${
                 location.pathname === "/about"
@@ -33,7 +33,7 @@ export function Layout() {
             >
               <Info />
               Sobre nós
-            </Link>
+            </Link> */}
             <Link
               to="/project/new"
               className={`flex gap-4 items-center font-semibold text-white px-4 py-2 rounded-lg transition-colors duration-300 ${
