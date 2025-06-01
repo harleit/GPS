@@ -36,6 +36,9 @@ public class ProjetoOutputDTO {
     }
 
     public String getStatus() {
+        if (status.equals("em_andamento")){
+            return "Em Andamento";
+        }
         return status;
     }
 
