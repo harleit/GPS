@@ -1,0 +1,103 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { listProjects } from "@/services/project.service";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+
+type ProjectStatusType =
+  | "planejado"
+  | "em_andamento"
+  | "concluido"
+  | "cancelado";
+
+interface Project {
+  id: number;
+  titulo: string;
+  descricao: string;
+  dataInicio: string;
+  status: ProjectStatusType;
+  gerente: string;
+}
+
+const statusColors: {
+  planejado: string;
+  em_andamento: string;
+  concluido: string;
+  cancelado: string;
+} = {
+  planejado: "border-2 border-solid border-blue-500 text-blue-500",
+  em_andamento: "border-2 border-solid border-yellow-500 text-yellow-500",
+  concluido: "border-2 border-solid border-green-500 text-green-500",
+  cancelado: "border-2 border-solid border-red-500 text-red-500",
+};
+
+export function ListProjects() {
+  let navigate = useNavigate();
+
+  const {
+    data: projectsData,
+    isLoading,
+    isError,
+  } = useQuery<Project[], Error>({
+    queryKey: ["projects"],
+    queryFn: listProjects,
+  });
+
+  const projects = projectsData || [];
+
+  return (
+    <div className="flex flex-col w-full h-full gap-5">
+      <div className="flex justify-end">
+        <Button
+          className="bg-blue-500 cursor-pointer"
+          onClick={() => navigate("new")}
+        >
+          Novo projeto
+        </Button>
+      </div>
+      <div className="flex flex-wrap justify-center w-full h-11/12 gap-3 py-3 overflow-y-auto overflow-x-hidden ">
+        {isLoading && <div>Carregando projetos...</div>}
+
+        {isError && <div>Erro ao carregar os projetos</div>}
+
+        {!isLoading && !isError && projects.length === 0 && (
+          <div className="w-full text-center py-10">
+            Nenhum projeto encontrado.
+          </div>
+        )}
+
+        {!isLoading &&
+          !isError &&
+          projects.map((project) => (
+            <Card key={project.id} className="w-[30%] max-h-1/2">
+              <CardHeader>
+                <CardTitle onClick={() => navigate("/activity")}>
+                  {project.titulo}
+                </CardTitle>
+                <CardDescription>{project.dataInicio}</CardDescription>
+                <CardAction>
+                  <div
+                    className={`${
+                      statusColors[project.status] || "bg-red-300"
+                    } p-2 rounded-md font-semibold text-center`}
+                  >
+                    {project.status}
+                  </div>
+                </CardAction>
+              </CardHeader>
+              <CardContent>Descrição: {project.descricao}</CardContent>
+              <CardFooter>Responsável: {project.gerente}</CardFooter>
+            </Card>
+          ))}
+      </div>
+    </div>
+  );
+}
