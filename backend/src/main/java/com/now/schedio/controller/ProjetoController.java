@@ -161,6 +161,22 @@ public class ProjetoController {
         }
     }
 
+    @Operation(summary = "Filtrar Projeto por Status")
+    @GetMapping(value = "/projetos/filtrar-status", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ProjetoOutputDTO>> filtrarProjetos( @RequestParam(required = true) String status
+    ) {
+        try {
+            List<Projeto> projetos = projetoService.filtrarProjetosPorStatus(status);
+            List<ProjetoOutputDTO> projetosDTO = projetos.stream()
+                    .map(projeto -> new ProjetoOutputDTO(projeto))  // Convertendo para DTO
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(projetosDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Operation(summary = "Filtrar Atividades por Título do Projeto e Prioridade")
     @GetMapping(value = "/projetos/atividades/filtrar-prioridade", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> filtrarAtividades(
