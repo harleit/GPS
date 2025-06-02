@@ -14,10 +14,19 @@ export const createProject = async (data: any) => {
 export const listProjects = async () => {
   try {
     const response = await api.get("/api/projeto");
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Erro na busca de dados", AxiosError);
+    throw error;
+  }
+};
+
+export const getActivityProject = async (titulo: string) => {
+  try {
+    const response = await api.get(`/api/projeto/${titulo}/atividades`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro na busca de dados");
     throw error;
   }
 };
