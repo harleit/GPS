@@ -139,6 +139,16 @@ public class ProjetoService {
         return new ProjetoOutputDTO(projeto);  // Retorna o DTO do projeto atualizado
     }
 
+    public List<Projeto> filtrarProjetosPorStatus(String status) { // Renamed and logic corrected
+        List<Projeto> todosProjetos = projetoRepository.findAll();
+        if (status != null && !status.trim().isEmpty()) {
+            return todosProjetos.stream()
+                    .filter(p -> p.getStatus().equalsIgnoreCase(status))
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
     public List<Atividade> filtrarAtividadesPorPrioridade(String tituloProjeto, String prioridade) {
         // Buscar o projeto pelo título
         Projeto projeto = projetoRepository.findByTitulo(tituloProjeto);
