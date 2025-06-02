@@ -11,6 +11,7 @@ import {
 import { listProjects } from "@/services/project.service";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import NoDataFound from "../../../assets/data-not-found.png";
 
 type ProjectStatusType =
   | "planejado"
@@ -55,7 +56,8 @@ export function ListProjects() {
 
   return (
     <div className="flex flex-col w-full h-full gap-5">
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <h1>Projetos</h1>
         <Button
           className="bg-blue-500 cursor-pointer"
           onClick={() => navigate("new")}
@@ -69,8 +71,9 @@ export function ListProjects() {
         {isError && <div>Erro ao carregar os projetos</div>}
 
         {!isLoading && !isError && projects.length === 0 && (
-          <div className="w-full text-center py-10">
-            Nenhum projeto encontrado.
+          <div className="flex flex-col w-full h-full justify-center items-center text-center py-10">
+            Nenhuma projeto registrado.
+            <img src={NoDataFound} className="h-3/4" />
           </div>
         )}
 
@@ -79,7 +82,10 @@ export function ListProjects() {
           projects.map((project) => (
             <Card key={project.id} className="w-[30%] max-h-1/2">
               <CardHeader>
-                <CardTitle onClick={() => navigate("/activity")}>
+                <CardTitle
+                  onClick={() => navigate(`/activity/${project.titulo}`)}
+                  className="cursor-pointer hover:underline"
+                >
                   {project.titulo}
                 </CardTitle>
                 <CardDescription>{project.dataInicio}</CardDescription>
