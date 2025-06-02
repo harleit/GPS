@@ -1,4 +1,5 @@
 import api from "@/lib/api";
+import type { ProjectActivityFormData } from "@/pages/ProjectActivity/New";
 import { AxiosError } from "axios";
 
 export const createProject = async (data: any) => {
@@ -27,6 +28,16 @@ export const getActivityProject = async (titulo: string) => {
     return response.data;
   } catch (error) {
     console.error("Erro na busca de dados");
+    throw error;
+  }
+};
+
+export const createProjectActivity = async (data: ProjectActivityFormData) => {
+  try {
+    const response = await api.post("api/atividade", data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro na criação");
     throw error;
   }
 };
