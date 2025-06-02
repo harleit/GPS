@@ -16,6 +16,7 @@ import java.awt.print.Pageable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProjetoService {
@@ -26,6 +27,7 @@ public class ProjetoService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    /*
     public List<ProjetoOutputDTO> list() {
         List<Projeto> projetos = projetoRepository.findAll();
         List<ProjetoOutputDTO> projetoDTOs = new ArrayList<>();
@@ -34,6 +36,48 @@ public class ProjetoService {
         }
         return projetoDTOs;
     }
+
+     */
+    public List<Projeto> findProjetosByCriteria(String titulo, String status, String usuarioEmail) {
+        // Busca todos os projetos. Para grandes volumes de dados, considere otimizações
+        // como Specifications API ou Querydsl para filtrar no nível do banco de dados.
+        List<Projeto> todosProjetos = projetoRepository.findAll();
+        Stream<Projeto> streamProjetos = todosProjetos.stream();
+
+        // Filtra por título (case-insensitive, partial match), se fornecido
+        if (titulo != null && !titulo.trim().isEmpty()) {
+            String tituloLower = titulo.trim().toLowerCase();
+            streamProjetos = streamProjetos.filter(projeto ->
+                    projeto.getTitulo() != null && projeto.getTitulo().toLowerCase().contains(tituloLower)
+            );
+        }
+
+        // Filtra por status, se fornecido
+        if (status != null && !status.trim().isEmpty()) {
+            streamProjetos = streamProjetos.filter(projeto ->
+                    projeto.getStatus() != null && projeto.getStatus().equalsIgnoreCase(status.trim())
+            );
+        }
+
+        // Filtra por email do usuário, se fornecido
+        if (usuarioEmail != null && !usuarioEmail.trim().isEmpty()) {
+            Usuario usuario = usuarioRepository.findByEmail(usuarioEmail.trim());
+            if (usuario != null) {
+                streamProjetos = streamProjetos.filter(projeto -> {
+                    boolean isGerente = projeto.getGerente() != null && projeto.getGerente().equals(usuario);
+                    boolean isParticipante = projeto.getUsuarios() != null && projeto.getUsuarios().contains(usuario);
+                    return isGerente || isParticipante;
+                });
+            } else {
+                // Se um usuarioEmail é especificado mas o usuário não é encontrado,
+                // nenhum projeto pode corresponder a este critério. Retorna lista vazia.
+                return new ArrayList<>();
+            }
+        }
+
+        return streamProjetos.collect(Collectors.toList());
+    }
+
 
     public ProjetoOutputDTO create(ProjetoInputDTO projetoInput) {
         Projeto projetoCreated = projetoRepository.save(projetoInput.build(usuarioRepository));
@@ -54,16 +98,16 @@ public class ProjetoService {
             return null;
         }
     }
-
-    public ProjetoOutputDTO getByTitulo(String titulo) {
-        Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
-        if (existingProjeto != null) {
-            return new ProjetoOutputDTO(existingProjeto);
-        } else {
-            return null;
+    /*
+        public ProjetoOutputDTO getByTitulo(String titulo) {
+            Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
+            if (existingProjeto != null) {
+                return new ProjetoOutputDTO(existingProjeto);
+            } else {
+                return null;
+            }
         }
-    }
-
+    */
     public List<AtividadeOutputDTO> getAtividades(String titulo) {
         Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
         if (existingProjeto != null) {
@@ -138,17 +182,27 @@ public class ProjetoService {
         projetoRepository.save(projeto);
         return new ProjetoOutputDTO(projeto);  // Retorna o DTO do projeto atualizado
     }
-
-    public List<Projeto> filtrarProjetosPorStatus(String status) { // Renamed and logic corrected
-        List<Projeto> todosProjetos = projetoRepository.findAll();
-        if (status != null && !status.trim().isEmpty()) {
-            return todosProjetos.stream()
-                    .filter(p -> p.getStatus().equalsIgnoreCase(status))
-                    .collect(Collectors.toList());
+    /*
+        public List<Projeto> filtrarProjetosPorGerente(String gerenteEmail) { // Renamed and logic corrected
+            List<Projeto> todosProjetos = projetoRepository.findAll();
+            if (gerenteEmail != null && !gerenteEmail.trim().isEmpty()) {
+                return todosProjetos.stream()
+                        .filter(p -> p.getGerente().getEmail().equalsIgnoreCase(gerenteEmail))
+                        .collect(Collectors.toList());
+            }
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
-    }
 
+        public List<Projeto> filtrarProjetosPorStatus(String status, String gerenteEmail) { // Renamed and logic corrected
+            List<Projeto> todosProjetos = filtrarProjetosPorGerente(gerenteEmail);
+            if (status != null && !status.trim().isEmpty()) {
+                return todosProjetos.stream()
+                        .filter(p -> p.getStatus().equalsIgnoreCase(status))
+                        .collect(Collectors.toList());
+            }
+            return new ArrayList<>();
+        }
+    */
     public List<Atividade> filtrarAtividadesPorPrioridade(String tituloProjeto, String prioridade) {
         // Buscar o projeto pelo título
         Projeto projeto = projetoRepository.findByTitulo(tituloProjeto);

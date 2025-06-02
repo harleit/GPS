@@ -8,6 +8,7 @@ import com.now.schedio.model.Atividade;
 import com.now.schedio.model.Projeto;
 import com.now.schedio.service.ProjetoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class ProjetoController {
     @Autowired
     ProjetoService projetoService;
 
-    @Operation(summary = "Listar todos os projetos")
+    /*@Operation(summary = "Listar todos os projetos")
     @GetMapping
     public ResponseEntity<List<ProjetoOutputDTO>> list() {
         try {
@@ -40,6 +41,35 @@ public class ProjetoController {
             }
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    */
+    @Operation(summary = "Listar projetos com filtros opcionais",
+            description = "Retorna uma lista de projetos. Pode ser filtrada por 'status' e/ou 'usuarioEmail'. " +
+                    "Se 'usuarioEmail' for fornecido, busca projetos onde o usuário é gerente ou participante.")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE) // Mapeia para GET /api/projeto
+    public ResponseEntity<List<ProjetoOutputDTO>> listarProjetosComFiltro(
+            @Parameter(description = "Status do projeto para filtrar (ex: 'planejado', 'em_andamento')")
+            @RequestParam(required = false) String status,
+            @Parameter(description = "Email do usuário (gerente ou participante) para filtrar projetos")
+            @RequestParam(required = false) String usuarioEmail,
+            @Parameter(description = "Titulo para filtrar projetos")
+            @RequestParam(required = false) String titulo
+    ) {
+        try {
+            List<Projeto> projetosEncontrados = projetoService.findProjetosByCriteria(titulo, status, usuarioEmail);
+
+            if (projetosEncontrados.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT); // Nenhum conteúdo encontrado
+            }
+
+            List<ProjetoOutputDTO> projetosDTO = projetosEncontrados.stream()
+                    .map(ProjetoOutputDTO::new)
+                    .collect(Collectors.toList());
+
+            return new ResponseEntity<>(projetosDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -69,22 +99,22 @@ public class ProjetoController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @Operation(summary = "Buscar um projeto pelo título")
-    @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProjetoOutputDTO> getByTitulo(@PathVariable String titulo) {
-        try {
-            ProjetoOutputDTO projeto = projetoService.getByTitulo(titulo);
-            if (projeto != null) {
-                return new ResponseEntity<>(projeto, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    /*
+        @Operation(summary = "Buscar um projeto pelo título")
+        @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<ProjetoOutputDTO> getByTitulo(@PathVariable String titulo) {
+            try {
+                ProjetoOutputDTO projeto = projetoService.getByTitulo(titulo);
+                if (projeto != null) {
+                    return new ResponseEntity<>(projeto, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                }
+            } catch (Exception e) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
+    */
     @Operation(summary = "Buscar atividades de um projeto pelo título")
     @GetMapping(value = "/{titulo}/atividades", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> getAtividades(@PathVariable String titulo) {
@@ -160,23 +190,40 @@ public class ProjetoController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    /*
+        @Operation(summary = "Filtrar Projeto por Usuário")
+        @GetMapping(value = "/filtrar-usuario", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<List<ProjetoOutputDTO>> filtrarProjetosGerente( @RequestParam(required = true) String gerenteEmail
+        ) {
+            try {
+                List<Projeto> projetos = projetoService.filtrarProjetosPorGerente(gerenteEmail);
+                List<ProjetoOutputDTO> projetosDTO = projetos.stream()
+                        .map(projeto -> new ProjetoOutputDTO(projeto))  // Convertendo para DTO
+                        .collect(Collectors.toList());
 
-    @Operation(summary = "Filtrar Projeto por Status")
-    @GetMapping(value = "/projetos/filtrar-status", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ProjetoOutputDTO>> filtrarProjetos( @RequestParam(required = true) String status
-    ) {
-        try {
-            List<Projeto> projetos = projetoService.filtrarProjetosPorStatus(status);
-            List<ProjetoOutputDTO> projetosDTO = projetos.stream()
-                    .map(projeto -> new ProjetoOutputDTO(projeto))  // Convertendo para DTO
-                    .collect(Collectors.toList());
-
-            return new ResponseEntity<>(projetosDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(projetosDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
-    }
 
+        @Operation(summary = "Filtrar Projeto por Status")
+        @GetMapping(value = "/filtrar-status", produces = MediaType.APPLICATION_JSON_VALUE)
+        public ResponseEntity<List<ProjetoOutputDTO>> filtrarProjetos( @RequestParam(required = true) String gerenteEmail,
+                                                                       @RequestParam(required = true) String status
+        ) {
+            try {
+                List<Projeto> projetos = projetoService.filtrarProjetosPorStatus(status, gerenteEmail);
+                List<ProjetoOutputDTO> projetosDTO = projetos.stream()
+                        .map(projeto -> new ProjetoOutputDTO(projeto))  // Convertendo para DTO
+                        .collect(Collectors.toList());
+
+                return new ResponseEntity<>(projetosDTO, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    */
     @Operation(summary = "Filtrar Atividades por Título do Projeto e Prioridade")
     @GetMapping(value = "/projetos/atividades/filtrar-prioridade", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> filtrarAtividades(
