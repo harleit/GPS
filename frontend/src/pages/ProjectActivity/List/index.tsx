@@ -8,11 +8,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getActivityProject } from "@/services/project.service";
-import { useQuery } from "@tanstack/react-query";
+import {
+  createProjectActivity,
+  getActivityProject,
+} from "@/services/project.service";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarClock, CalendarMinus } from "lucide-react";
 import { useParams } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
+import { useState } from "react";
+import { NewProjectActivity, type ProjectActivityFormData } from "../New";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ProjectActivity {
   id: number;
@@ -27,7 +42,9 @@ interface ProjectActivity {
 }
 
 export function ListProjectActivity() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { titulo } = useParams<{ titulo: string }>();
+  const queryClient = useQueryClient();
 
   const {
     data: activitiesData,
@@ -47,6 +64,26 @@ export function ListProjectActivity() {
     enabled: !!titulo,
   });
 
+  const handleSaveActivity = async (data: ProjectActivityFormData) => {
+    console.log(
+      "ListProjectActivity: handleSaveActivity chamado com data:",
+      data
+    ); // DEBUG
+    try {
+      await createProjectActivity(data);
+      console.log("ListProjectActivity: createProjectActivity bem-sucedido."); // DEBUG
+      setIsDialogOpen(false); // Fecha o diálogo
+      // Invalida a query da lista de atividades para forçar a atualização
+      console.log("Invalidando query: project-activities", titulo);
+      queryClient.invalidateQueries({
+        queryKey: ["project-activities", titulo],
+      });
+    } catch (error) {
+      console.error("ListProjectActivity: Erro em handleSaveActivity:", error); // DEBUG
+      // Considere adicionar um feedback para o usuário aqui em caso de erro
+    }
+  };
+
   const activities = activitiesData || []; // Renomeado para clareza
 
   // Se o título não foi fornecido pela URL, mostre uma mensagem.
@@ -62,14 +99,47 @@ export function ListProjectActivity() {
     <div className="flex flex-col w-full h-full gap-5">
       <div className="flex justify-between items-center">
         <h1>Atividades</h1>
-        <Button
-          className="bg-blue-500 cursor-pointer"
-          onClick={() => {
-            console.log("Criando nova atividade");
-          }}
-        >
-          Nova atividade
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="bg-blue-500 cursor-pointer"
+              onClick={() => setIsDialogOpen(true)} // Controla explicitamente a abertura
+            >
+              Nova atividade
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="w-1/2">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Nova Atividade - {titulo}</DialogTitle>
+              <DialogDescription>
+                Preencha os detalhes abaixo para adicionar uma nova atividade ao
+                projeto.
+              </DialogDescription>
+            </DialogHeader>
+            <NewProjectActivity
+              onSave={handleSaveActivity}
+              formId="newActivityForm"
+              currentProjetoTitulo={titulo}
+            />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              </DialogClose>
+              {/* Este botão aciona o submit do formulário com id="newActivityForm" */}
+              <Button
+                type="submit"
+                form="newActivityForm"
+                onClick={() => {
+                  console.log("Debug: Botão Salvar");
+                }}
+              >
+                Salvar Atividade
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex flex-wrap justify-center w-full h-11/12 gap-3 py-3 overflow-y-auto overflow-x-hidden ">
         {isLoading && <div>Carregando atividades...</div>}
