@@ -13,7 +13,7 @@ export function AppRoutes() {
         <Route path="about" element={<AboutPage />} />
         <Route path="project" element={<ListProjects />} />
         <Route path="project/new" element={<NewProject />} />
-        <Route path="activity" element={<ListProjectActivity />} />
+        <Route path="activity/:titulo" element={<ListProjectActivity />} />
       </Route>
 
       <Route index element={<NewUser />} />
