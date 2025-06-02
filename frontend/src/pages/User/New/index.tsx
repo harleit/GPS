@@ -141,7 +141,7 @@ export function NewUser() {
             Já possui cadastro?
             <Button
               className="bg-blue-500 cursor-pointer"
-              onClick={() => navigate("project/new")}
+              onClick={() => navigate("project")}
             >
               Entrar
             </Button>
