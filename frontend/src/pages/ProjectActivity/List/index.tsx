@@ -29,6 +29,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+type ProjectStatusType = "pendente" | "em_andamento" | "concluida";
+
 interface ProjectActivity {
   id: number;
   nome: string;
@@ -36,10 +38,20 @@ interface ProjectActivity {
   dataInicio: string;
   dataFimPrevista: string;
   dataFimReal: string;
-  status: string;
+  status: ProjectStatusType;
   projetoTitulo: string;
   responsavelEmail: string;
 }
+
+const statusColors: {
+  pendente: string;
+  em_andamento: string;
+  concluida: string;
+} = {
+  pendente: "border-2 border-solid border-blue-500 text-blue-500",
+  em_andamento: "border-2 border-solid border-yellow-500 text-yellow-500",
+  concluida: "border-2 border-solid border-green-500 text-green-500",
+};
 
 export function ListProjectActivity() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -169,7 +181,15 @@ export function ListProjectActivity() {
                     {activity.dataFimPrevista}
                   </CardDescription>
                 </div>
-                <CardAction>{activity.status}</CardAction>
+                <CardAction>
+                  <div
+                    className={`${
+                      statusColors[activity.status] || "bg-gray-500"
+                    } p-2 rounded-md font-semibold text-center`}
+                  >
+                    {activity.status}
+                  </div>
+                </CardAction>
               </CardHeader>
               <CardContent>{activity.descricao}</CardContent>
               <CardFooter>{activity.responsavelEmail}</CardFooter>
