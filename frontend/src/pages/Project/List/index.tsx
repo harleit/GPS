@@ -34,10 +34,10 @@ const statusColors: {
   concluido: string;
   cancelado: string;
 } = {
-  planejado: "border-2 border-solid border-blue-500 text-blue-500",
-  em_andamento: "border-2 border-solid border-yellow-500 text-yellow-500",
-  concluido: "border-2 border-solid border-green-500 text-green-500",
-  cancelado: "border-2 border-solid border-red-500 text-red-500",
+  planejado: "border-2 border-solid text-sm border-blue-500 text-blue-500",
+  em_andamento: "border-2 border-solid text-sm border-yellow-500 text-yellow-500",
+  concluido: "border-2 border-solid text-sm border-green-500 text-green-500",
+  cancelado: "border-2 border-solid text-sm border-red-500 text-red-500",
 };
 
 export function ListProjects() {
@@ -57,9 +57,9 @@ export function ListProjects() {
   return (
     <div className="flex flex-col w-full h-full gap-5">
       <div className="flex justify-between items-center">
-        <h1>Projetos</h1>
+        <h1 className = "text-xl font-semibold">Projetos</h1>
         <Button
-          className="bg-blue-500 cursor-pointer"
+          className=" bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors ease-in-out"
           onClick={() => navigate("new")}
         >
           Novo projeto
@@ -72,7 +72,7 @@ export function ListProjects() {
 
         {!isLoading && !isError && projects.length === 0 && (
           <div className="flex flex-col w-full h-full justify-center items-center text-center py-10">
-            Nenhuma projeto registrado.
+            Nenhum projeto registrado.
             <img src={NoDataFound} className="h-3/4" />
           </div>
         )}
@@ -80,7 +80,7 @@ export function ListProjects() {
         {!isLoading &&
           !isError &&
           projects.map((project) => (
-            <Card key={project.id} className="w-[30%] max-h-1/2">
+            <Card key={project.id} className="md:w-[30%] sm:w-[20%]  max-h-1/2 transition-colors duration-300 ease-in-out hover:bg-gray-100 ">
               <CardHeader>
                 <CardTitle
                   onClick={() => navigate(`/activity/${project.titulo}`)}
@@ -93,7 +93,7 @@ export function ListProjects() {
                   <div
                     className={`${
                       statusColors[project.status] || "bg-red-300"
-                    } p-2 rounded-md font-semibold text-center`}
+                    } p-1 rounded-md text-center`}
                   >
                     {project.status}
                   </div>

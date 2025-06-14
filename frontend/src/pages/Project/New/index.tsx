@@ -87,6 +87,7 @@ export function NewProject() {
       };
 
       // Chame o serviço para criar o projeto
+ 
       await createProject(payload);
 
       // Sucesso
@@ -140,7 +141,7 @@ export function NewProject() {
     <div className="flex justify-center w-1/2 p-[10px] bg-gray-50 rounded-lg shadow-lg">
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-8 w-full"
+        className="flex flex-col gap-2 2xl:gap-8 max-h-full w-full overflow-auto"
       >
         <div>
           <div className="flex gap-2 items-center">
@@ -248,7 +249,7 @@ export function NewProject() {
           </div>
           <Input
             {...register("gerente")}
-            placeholder="Nome do gerente"
+            placeholder="Email do gerente"
             className="w-full"
           />
           {errors.gerente ? (
@@ -261,7 +262,7 @@ export function NewProject() {
         </div>
 
         {/* Botão de submit */}
-        <Button className="cursor-pointer, bg-blue-500" type="submit">
+        <Button className="cursor-pointer,  transition-colors ease-in-out bg-blue-500 hover:bg-blue-600 cursor-pointer" type="submit">
           Cadastrar
         </Button>
       </form>
