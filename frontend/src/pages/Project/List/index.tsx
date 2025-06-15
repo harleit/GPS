@@ -8,10 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Ellipsis } from "lucide-react";
 import { listProjects } from "@/services/project.service";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
+import { ProjectMenu } from "./ProjectMenu";
 
 type ProjectStatusType =
   | "planejado"
@@ -57,7 +59,7 @@ export function ListProjects() {
   return (
     <div className="flex flex-col w-full h-full gap-5">
       <div className="flex justify-between items-center">
-        <h1 className = "text-xl font-semibold">Projetos</h1>
+        <h1 className="text-xl font-semibold">Projetos</h1>
         <Button
           className=" bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors ease-in-out"
           onClick={() => navigate("new")}
@@ -80,7 +82,7 @@ export function ListProjects() {
         {!isLoading &&
           !isError &&
           projects.map((project) => (
-            <Card key={project.id} className="md:w-[30%] sm:w-[20%]  max-h-1/2 transition-colors duration-300 ease-in-out hover:bg-gray-100 ">
+            <Card key={project.id} className="md:w-[45%] sm:w-[20%]  max-h-1/2 transition-colors duration-300 ease-in-out hover:bg-gray-100 ">
               <CardHeader>
                 <CardTitle
                   onClick={() => navigate(`/activity/${project.titulo}`)}
@@ -90,14 +92,19 @@ export function ListProjects() {
                 </CardTitle>
                 <CardDescription>{project.dataInicio}</CardDescription>
                 <CardAction>
-                  <div
-                    className={`${
-                      statusColors[project.status] || "bg-red-300"
-                    } p-1 rounded-md text-center`}
-                  >
-                    {project.status}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`${statusColors[project.status] || "bg-red-300"
+                        } p-1 rounded-md text-center`}
+                    >
+                      {project.status}
+                    </div>
+                    <div>
+                      <ProjectMenu/>
+                    </div>
                   </div>
                 </CardAction>
+
               </CardHeader>
               <CardContent>Descrição: {project.descricao}</CardContent>
               <CardFooter>Responsável: {project.gerente}</CardFooter>
