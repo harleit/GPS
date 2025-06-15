@@ -116,7 +116,7 @@ export function NewProjectActivity({
     <form
       id={formId}
       onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)}
-      className="flex flex-col gap-8 w-full"
+      className="flex flex-col w-full"
     >
       <div className="flex gap-8 items-center justify-center">
         <div>
@@ -128,7 +128,7 @@ export function NewProjectActivity({
           </div>
           <Input
             {...register("nome")}
-            placeholder="Digite o nome do projeto"
+            placeholder="Digite o nome da atividade"
             className="w-full" // Adapta o tamanho do input
           />
           {errors.nome ? (
@@ -149,7 +149,7 @@ export function NewProjectActivity({
           </div>
           <Input
             {...register("descricao")}
-            placeholder="Digite a descrição do projeto"
+            placeholder="Digite a descrição da atividade"
             className="w-full" // Adapta o tamanho do input
           />
           {errors.descricao ? (
