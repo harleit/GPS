@@ -8,12 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Ellipsis } from "lucide-react";
 import { listProjects } from "@/services/project.service";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
 import { ProjectMenu } from "./ProjectMenu";
+import { Calendar, ContactRound, Plus, Text } from "lucide-react";
 
 type ProjectStatusType =
   | "planejado"
@@ -61,9 +61,10 @@ export function ListProjects() {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold">Projetos</h1>
         <Button
-          className=" bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors ease-in-out"
+          className=" flex  items-center bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors ease-in-out"
           onClick={() => navigate("new")}
         >
+          <Plus/>
           Novo projeto
         </Button>
       </div>
@@ -90,7 +91,10 @@ export function ListProjects() {
                 >
                   {project.titulo}
                 </CardTitle>
-                <CardDescription>{project.dataInicio}</CardDescription>
+                <CardDescription>
+                  <div>
+                  <div className = "flex items-center justify-center gap-1  p-1 rounded  w-fit border-gray-500"><Calendar size={18}/>{project.dataInicio}</div>
+                </div></CardDescription>
                 <CardAction>
                   <div className="flex items-center gap-2">
                     <div
@@ -106,8 +110,13 @@ export function ListProjects() {
                 </CardAction>
 
               </CardHeader>
-              <CardContent>Descrição: {project.descricao}</CardContent>
-              <CardFooter>Responsável: {project.gerente}</CardFooter>
+              <CardContent className = "flex items-start gap-1">
+                <Text size = {18}/>
+                Descrição: {project.descricao}
+                </CardContent>
+              <CardFooter className = "flex items-center gap-1">
+                <ContactRound size = {18} />Responsável: {project.gerente}
+                </CardFooter>
             </Card>
           ))}
       </div>
