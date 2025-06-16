@@ -28,6 +28,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ActivityMenu } from "./ActivityMenu";
 
 type ProjectStatusType = "pendente" | "em_andamento" | "concluida";
 
@@ -110,11 +111,11 @@ export function ListProjectActivity() {
   return (
     <div className="flex flex-col w-full h-full gap-5">
       <div className="flex justify-between items-center">
-        <h1>Atividades</h1>
+        <h1 className = "text-xl font-semibold">Atividades</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
-              className="bg-blue-500 cursor-pointer"
+              className="bg-blue-500 transition-colors duration-300 ease-in-out hover:bg-blue-600 cursor-pointer"
               onClick={() => setIsDialogOpen(true)} // Controla explicitamente a abertura
             >
               Nova atividade
@@ -143,6 +144,7 @@ export function ListProjectActivity() {
               <Button
                 type="submit"
                 form="newActivityForm"
+                className = "bg-blue-500 transition-colors duration-300 ease-in-out  hover:bg-blue-600 cursor-pointer"
                 onClick={() => {
                   console.log("Debug: Botão Salvar");
                 }}
@@ -182,12 +184,17 @@ export function ListProjectActivity() {
                   </CardDescription>
                 </div>
                 <CardAction>
-                  <div
-                    className={`${
-                      statusColors[activity.status] || "bg-gray-500"
-                    } p-2 rounded-md font-semibold text-center`}
-                  >
-                    {activity.status}
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`${
+                        statusColors[activity.status] || "bg-gray-500"
+                      } p-2 rounded-md font-semibold text-center`}
+                    >
+                      {activity.status}
+                    </div>
+                    <div>
+                      <ActivityMenu activityId = {String(activity.id)}/>
+                    </div>
                   </div>
                 </CardAction>
               </CardHeader>

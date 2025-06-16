@@ -22,6 +22,11 @@ export const listProjects = async () => {
   }
 };
 
+export const updateProjectByTitle = async (titulo: string, payload: any) => {
+  const response = await api.put(`/api/projeto/${encodeURIComponent(titulo)}`, payload);
+  return response.data;
+};
+
 export const getActivityProject = async (titulo: string) => {
   try {
     const response = await api.get(`/api/projeto/${titulo}/atividades`);
@@ -41,3 +46,15 @@ export const createProjectActivity = async (data: ProjectActivityFormData) => {
     throw error;
   }
 };
+
+export const deleteProjectActivityById = async (id: string) => {
+  try{
+    const response = await api.delete(`/api/atividade/${id}`); 
+    return response.data;
+  } catch(error){
+    console.error("Erro ao deletar a atividade", error); 
+    throw error; 
+  }
+}
+
+
