@@ -5,6 +5,9 @@ import { NewProject } from "./pages/Project/New";
 import { NewUser } from "./pages/User/New";
 import { ListProjects } from "./pages/Project/List";
 import { ListProjectActivity } from "./pages/ProjectActivity/List";
+import { EditProject } from "./pages/Project/Edit";
+import { EditProjectActivity } from "./pages/ProjectActivity/Edit";
+import { EditActivityPage } from "./pages/ProjectActivity/Edit/EditActivityPage";
 
 export function AppRoutes() {
   return (
@@ -13,7 +16,13 @@ export function AppRoutes() {
         <Route path="about" element={<AboutPage />} />
         <Route path="project" element={<ListProjects />} />
         <Route path="project/new" element={<NewProject />} />
+        <Route path="project/edit/" element={<EditProject />} />
         <Route path="activity/:titulo" element={<ListProjectActivity />} />
+        <Route
+          path="activity/:projectTitle/edit/:activityId"
+          element={<EditActivityPage />}
+        />
+
       </Route>
 
       <Route index element={<NewUser />} />

@@ -193,7 +193,7 @@ export function ListProjectActivity() {
                       {activity.status}
                     </div>
                     <div>
-                      <ActivityMenu activityId = {String(activity.id)}/>
+                      <ActivityMenu activityId = {String(activity.id)} projectTitle={titulo}/>
                     </div>
                   </div>
                 </CardAction>

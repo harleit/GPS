@@ -57,4 +57,25 @@ export const deleteProjectActivityById = async (id: string) => {
   }
 }
 
+export const getProjectActivityById = async (id: string) => {
+  try {
+    const response = await api.get(`/api/atividade/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar atividade pelo ID", error);
+    throw error;
+  }
+};
 
+export const updateProjectActivityById = async (
+  id: string,
+  data: ProjectActivityFormData
+) => {
+  try {
+    const response = await api.put(`/api/atividade/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar atividade", error);
+    throw error;
+  }
+};
