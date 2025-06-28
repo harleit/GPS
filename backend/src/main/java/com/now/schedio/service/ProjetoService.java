@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class ProjetoService {
+public class  ProjetoService {
 
     @Autowired
     ProjetoRepository projetoRepository;
