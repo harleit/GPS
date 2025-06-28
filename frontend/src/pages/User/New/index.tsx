@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import FormImage from "../../../assets/form-image.png";
 import { useNavigate } from "react-router-dom";
 import { KeyRound, Mail, User } from "lucide-react";
+import LogoSchedio from "../../../assets/logo-schedio.svg";
 
 const schema = z.object({
   userName: z
@@ -57,101 +58,105 @@ export function NewUser() {
   };
 
   return (
-    <div className="flex justify-center items-center h-dvh">
-      <div className="flex justify-center w-1/2 p-[10px] bg-gray-50 rounded-lg shadow-lg gap-6">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-8 w-1/2"
-        >
-          {/* nome completo */}
-          <div>
-            <div className="flex items-center gap-2">
-              <User size={18} className="text-blue-500" />
-              <label htmlFor="userName" className="block mb-2">
-                Nome completo
-              </label>
+    <div>
+      <div className = "pt-1 pl-5">
+        <h1 className = "text-[#3B63A8] font-bold text-2xl">Sched<span>io</span></h1>
+      </div>
+      <div className="flex justify-center items-center h-dvh">
+        <div className="flex justify-center  p-[10px]  rounded-lg shadow-lg gap-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 w-1/2"
+          >
+            {/* nome completo */}
+            <div>
+              <h1 className = "text-center text-[#57a5d9] font-semibold text-2xl animate-pulse">Bem-vindo</h1>
+              <div className="flex items-center gap-2">
+                <User size={18} className="text-blue-500" />
+                <label htmlFor="userName" className="block mb-2">
+                  Nome completo
+                </label>
+              </div>
+              <Input
+                {...register("userName")}
+                placeholder="Digite seu nome completo"
+                className="w-full"
+              />
+              {errors.userName ? (
+                <p className="text-sm text-red-500">{errors.userName.message}</p>
+              ) : (
+                <p className="text-sm text-blue-500">
+                  Esse é o seu nome completo
+                </p>
+              )}
             </div>
-            <Input
-              {...register("userName")}
-              placeholder="Digite seu nome completo"
-              className="w-full"
-            />
-            {errors.userName ? (
-              <p className="text-sm text-red-500">{errors.userName.message}</p>
-            ) : (
-              <p className="text-sm text-blue-500">
-                Esse é o seu nome completo
-              </p>
-            )}
-          </div>
-
-          {/* email  */}
-          <div>
-            <div className="flex items-center gap-2">
-              <Mail size={18} className="text-blue-500" />
-              <label htmlFor="userEmail" className="block mb-2">
-                Email
-              </label>
+            {/* email  */}
+            <div>
+              <div className="flex items-center gap-2">
+                <Mail size={18} className="text-blue-500" />
+                <label htmlFor="userEmail" className="block mb-2">
+                  Email
+                </label>
+              </div>
+              <Input
+                type="email"
+                {...register("userEmail")}
+                placeholder="Digite seu Email"
+                className="w-full"
+              />
+              {errors.userEmail ? (
+                <p className="text-sm text-red-500">{errors.userEmail.message}</p>
+              ) : (
+                <p className="text-sm text-blue-500">
+                  Esse será o seu Email cadastrado
+                </p>
+              )}
             </div>
-            <Input
-              type="email"
-              {...register("userEmail")}
-              placeholder="Digite seu Email"
-              className="w-full"
-            />
-            {errors.userEmail ? (
-              <p className="text-sm text-red-500">{errors.userEmail.message}</p>
-            ) : (
-              <p className="text-sm text-blue-500">
-                Esse será o seu Email cadastrado
-              </p>
-            )}
-          </div>
-
-          {/* senha */}
-          <div>
-            <div className="flex items-center gap-2">
-              <KeyRound size={18} className="text-blue-500" />
-              <label htmlFor="userPassword" className="block mb-2">
-                Senha
-              </label>
+            {/* senha */}
+            <div>
+              <div className="flex items-center gap-2">
+                <KeyRound size={18} className="text-blue-500" />
+                <label htmlFor="userPassword" className="block mb-2">
+                  Senha
+                </label>
+              </div>
+              <Input
+                type="password"
+                {...register("userPassword")}
+                placeholder="Digite sua senha"
+                className="w-full"
+              />
+              {errors.userPassword ? (
+                <p className="text-sm text-red-500">
+                  {errors.userPassword.message}
+                </p>
+              ) : (
+                <p className="text-sm text-blue-500">Sua senha</p>
+              )}
             </div>
-            <Input
-              type="password"
-              {...register("userPassword")}
-              placeholder="Digite sua senha"
-              className="w-full"
-            />
-            {errors.userPassword ? (
-              <p className="text-sm text-red-500">
-                {errors.userPassword.message}
-              </p>
-            ) : (
-              <p className="text-sm text-blue-500">Sua senha</p>
-            )}
-          </div>
-
-          {/* Botão de submit */}
-          <Button className="cursor-pointer bg-blue-500" type="submit">
-            Cadastrar
-          </Button>
-        </form>
-        <div className="flex flex-col w-1/2 justify-around">
-          <div className="flex w-full justify-between">
-            Já possui cadastro?
-            <Button
-              className="bg-blue-500 cursor-pointer"
-              onClick={() => navigate("project")}
-            >
-              Entrar
+            {/* Botão de submit */}
+            <Button className="cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors ease-in-out" type="submit">
+              Cadastrar
             </Button>
-          </div>
-          <div>
-            <img
-              src={FormImage}
-              alt="Imagem de duas pessoas dando mãos"
-              className="shadow-lg"
-            />
+            <div className="flex w-full justify-between">
+              Já possui cadastro?
+              <Button
+                className="bg-blue-500 hover:bg-blue-600 transition-colors ease-in-out cursor-pointer"
+                onClick={() => navigate("project")}
+              >
+                Entrar
+              </Button>
+            </div>
+          </form>
+          <div className="flex flex-col w-1/2 justify-around">
+      
+            <div>
+              <img
+                src={FormImage}
+                alt="Imagem de duas pessoas dando mãos"
+                className = ""
+              />
+            </div>
           </div>
         </div>
       </div>
