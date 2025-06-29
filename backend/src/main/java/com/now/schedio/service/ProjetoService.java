@@ -98,16 +98,16 @@ public class  ProjetoService {
             return null;
         }
     }
-    /*
-        public ProjetoOutputDTO getByTitulo(String titulo) {
-            Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
-            if (existingProjeto != null) {
-                return new ProjetoOutputDTO(existingProjeto);
-            } else {
-                return null;
-            }
+
+    public ProjetoOutputDTO getByTitulo(String titulo) {
+        Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
+        if (existingProjeto != null) {
+            return new ProjetoOutputDTO(existingProjeto);
+        } else {
+            return null;
         }
-    */
+    }
+
     public List<AtividadeOutputDTO> getAtividades(String titulo) {
         Projeto existingProjeto = projetoRepository.findByTitulo(titulo);
         if (existingProjeto != null) {

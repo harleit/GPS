@@ -99,22 +99,22 @@ public class ProjetoController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    /*
-        @Operation(summary = "Buscar um projeto pelo título")
-        @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
-        public ResponseEntity<ProjetoOutputDTO> getByTitulo(@PathVariable String titulo) {
-            try {
-                ProjetoOutputDTO projeto = projetoService.getByTitulo(titulo);
-                if (projeto != null) {
-                    return new ResponseEntity<>(projeto, HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
-            } catch (Exception e) {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    @Operation(summary = "Buscar um projeto pelo título")
+    @GetMapping(value = "/{titulo}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ProjetoOutputDTO> getByTitulo(@PathVariable String titulo) {
+        try {
+            ProjetoOutputDTO projeto = projetoService.getByTitulo(titulo);
+            if (projeto != null) {
+                return new ResponseEntity<>(projeto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    */
+    }
+
     @Operation(summary = "Buscar atividades de um projeto pelo título")
     @GetMapping(value = "/{titulo}/atividades", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AtividadeOutputDTO>> getAtividades(@PathVariable String titulo) {
