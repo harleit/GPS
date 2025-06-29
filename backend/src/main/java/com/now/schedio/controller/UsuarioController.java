@@ -39,6 +39,7 @@ public class UsuarioController {
         }
     }
 
+    /*
     @Operation(summary = "Criar um novo usuário")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:5173")
@@ -50,6 +51,7 @@ public class UsuarioController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    */
 
     @Operation(summary = "Buscar um usuário pelo email")
     @GetMapping(value = "/{email}", produces = MediaType.APPLICATION_JSON_VALUE)

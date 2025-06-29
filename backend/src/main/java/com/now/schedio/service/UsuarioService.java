@@ -31,6 +31,7 @@ public class UsuarioService {
         return usuariosDTO;
     }
 
+
     public UsuarioOutputDTO create(UsuarioInputDTO usuarioInput) {
         Usuario usuarioCreated = usuarioInput.build(); // Usando o método build do DTO
         usuarioRepository.save(usuarioCreated);

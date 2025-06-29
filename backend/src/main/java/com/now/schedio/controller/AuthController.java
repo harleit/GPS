@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @Operation(summary = "Registrar um novo usuário")
-    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerUser(@RequestBody UsuarioInputDTO usuarioInputDTO) { //
         try {
             // Verifique se o e-mail já está em uso
