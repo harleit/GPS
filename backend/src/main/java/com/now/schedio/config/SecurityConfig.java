@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Desabilita CSRF para APIs REST
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/usuario/**").permitAll() // Rotas públicas para login/cadastro
-                        .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/index.html", "/swagger-ui/**").permitAll() // Permite acesso ao Swagger
+                        .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll() // Permite acesso ao Swagger
                         .anyRequest().authenticated() // Todas as outras requisições exigem autenticação
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // API REST sem estado
