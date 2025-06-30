@@ -1,4 +1,6 @@
+// harleit/gps/GPS-b885fdf8f7de3f14d31842ccfa48446b797a40c8/frontend/src/pages/ProjectActivity/List/index.tsx
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardAction,
@@ -13,7 +15,15 @@ import {
   getActivityProject,
 } from "@/services/project.service";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarClock, CalendarMinus } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarMinus,
+  User,
+  MessageSquareText,
+  BarChart,
+  Flag,
+  FileText,
+} from "lucide-react";
 import { useParams } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
 import { useState } from "react";
@@ -29,8 +39,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ActivityMenu } from "./ActivityMenu";
+import { format } from "date-fns";
 
 type ProjectStatusType = "pendente" | "em_andamento" | "concluida";
+type ActivityEvaluationType =
+  | "nao_concluida"
+  | "concluida_com_observacoes"
+  | "concluida";
+type ActivityPriorityType = "baixa" | "normal" | "alta";
 
 interface ProjectActivity {
   id: number;
@@ -38,24 +54,31 @@ interface ProjectActivity {
   descricao: string;
   dataInicio: string;
   dataFimPrevista: string;
-  dataFimReal: string;
+  dataFimReal?: string;
   status: ProjectStatusType;
   projetoTitulo: string;
   responsavelEmail: string;
+  avaliadorEmail?: string;
+  avaliacao?: ActivityEvaluationType;
+  observacoes?: string;
+  prioridade?: ActivityPriorityType;
 }
 
-const statusColors: {
-  pendente: string;
-  em_andamento: string;
-  concluida: string;
-} = {
+const statusColors = {
   pendente: "border-2 border-solid border-blue-500 text-blue-500",
   em_andamento: "border-2 border-solid border-yellow-500 text-yellow-500",
   concluida: "border-2 border-solid border-green-500 text-green-500",
 };
 
+const priorityColors = {
+  baixa: "border-2 border-solid border-gray-400 text-gray-600",
+  normal: "border-2 border-solid border-blue-400 text-blue-600",
+  alta: "border-2 border-solid border-red-500 text-red-600",
+};
+
 export function ListProjectActivity() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const { titulo } = useParams<{ titulo: string }>();
   const queryClient = useQueryClient();
 
@@ -63,71 +86,54 @@ export function ListProjectActivity() {
     data: activitiesData,
     isLoading,
     isError,
+    error,
   } = useQuery<ProjectActivity[], Error>({
     queryKey: ["project-activities", titulo],
     queryFn: () => {
-      if (!titulo) {
-        // Não deve acontecer se 'enabled' estiver configurado corretamente, mas é uma guarda extra.
-        // Retornar uma promessa rejeitada ou um array vazio, dependendo de como quer lidar.
-        return Promise.reject(new Error("Título do projeto não fornecido."));
-      }
-      return getActivityProject(titulo); // Passa o título para a função
+      if (!titulo) return Promise.reject(new Error("Título do projeto não fornecido."));
+      return getActivityProject(titulo);
     },
-    // 4. Habilitar a query somente se o título do projeto estiver disponível
     enabled: !!titulo,
   });
 
   const handleSaveActivity = async (data: ProjectActivityFormData) => {
-    console.log(
-      "ListProjectActivity: handleSaveActivity chamado com data:",
-      data
-    ); // DEBUG
     try {
       await createProjectActivity(data);
-      console.log("ListProjectActivity: createProjectActivity bem-sucedido."); // DEBUG
-      setIsDialogOpen(false); // Fecha o diálogo
-      // Invalida a query da lista de atividades para forçar a atualização
-      console.log("Invalidando query: project-activities", titulo);
-      queryClient.invalidateQueries({
-        queryKey: ["project-activities", titulo],
-      });
+      setIsDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["project-activities", titulo] });
     } catch (error) {
-      console.error("ListProjectActivity: Erro em handleSaveActivity:", error); // DEBUG
-      // Considere adicionar um feedback para o usuário aqui em caso de erro
+      console.error("Erro ao salvar atividade:", error);
     }
   };
 
-  const activities = activitiesData || []; // Renomeado para clareza
-
-  // Se o título não foi fornecido pela URL, mostre uma mensagem.
-  if (!titulo) {
+  const filteredActivities = (activitiesData || []).filter((activity) => {
+    const term = searchTerm.toLowerCase();
     return (
-      <div className="w-full text-center py-10">
-        Título do projeto não especificado na URL.
-      </div>
+      activity.nome.toLowerCase().includes(term) ||
+      activity.descricao.toLowerCase().includes(term) ||
+      activity.responsavelEmail.toLowerCase().includes(term) ||
+      (activity.avaliadorEmail && activity.avaliadorEmail.toLowerCase().includes(term))
     );
+  });
+
+  if (!titulo) {
+    return <div className="w-full text-center py-10">Título do projeto não especificado na URL.</div>;
   }
 
   return (
     <div className="flex flex-col w-full h-full gap-5">
-      <div className="flex justify-between items-center">
-        <h1 className = "text-xl font-semibold">Atividades</h1>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+        <h1 className="text-xl font-semibold">Atividades do Projeto: {titulo}</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button
-              className="bg-blue-500 transition-colors duration-300 ease-in-out hover:bg-blue-600 cursor-pointer"
-              onClick={() => setIsDialogOpen(true)} // Controla explicitamente a abertura
-            >
+            <Button className="bg-blue-500 hover:bg-blue-600 transition-colors">
               Nova atividade
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-1/2">
+          <DialogContent className="w-11/12 md:w-1/2">
             <DialogHeader>
-              <DialogTitle>Cadastrar Nova Atividade - {titulo}</DialogTitle>
-              <DialogDescription>
-                Preencha os detalhes abaixo para adicionar uma nova atividade ao
-                projeto.
-              </DialogDescription>
+              <DialogTitle>Nova Atividade - {titulo}</DialogTitle>
+              <DialogDescription>Adicione uma nova atividade ao projeto.</DialogDescription>
             </DialogHeader>
             <NewProjectActivity
               onSave={handleSaveActivity}
@@ -136,70 +142,72 @@ export function ListProjectActivity() {
             />
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancelar
-                </Button>
+                <Button variant="outline">Cancelar</Button>
               </DialogClose>
-              {/* Este botão aciona o submit do formulário com id="newActivityForm" */}
-              <Button
-                type="submit"
-                form="newActivityForm"
-                className = "bg-blue-500 transition-colors duration-300 ease-in-out  hover:bg-blue-600 cursor-pointer"
-                onClick={() => {
-                  console.log("Debug: Botão Salvar");
-                }}
-              >
-                Salvar Atividade
+              <Button type="submit" form="newActivityForm" className="bg-blue-500 hover:bg-blue-600">
+                Salvar
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex flex-wrap justify-center w-full h-11/12 gap-3 py-3 overflow-y-auto overflow-x-hidden ">
-        {isLoading && <div>Carregando atividades...</div>}
 
-        {isError && <div>Erro ao carregar as atividades</div>}
+      <Input
+        placeholder="Buscar por nome, descrição, responsável ou avaliador..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full"
+      />
 
-        {!isLoading && !isError && activities.length === 0 && (
-          <div className="flex flex-col w-full h-full justify-center items-center text-center py-10">
-            Nenhuma atividade registrada.
-            <img src={NoDataFound} className="h-3/4" />
+      <div className="flex flex-wrap justify-center gap-4 py-3 overflow-y-auto">
+        {isLoading && <div>Carregando...</div>}
+        {isError && <div>Erro: {error?.message}</div>}
+        {!isLoading && !isError && filteredActivities.length === 0 && (
+          <div className="flex flex-col items-center">
+            Nenhuma atividade encontrada.
+            <img src={NoDataFound} alt="Nenhum dado" className="h-64 mt-4" />
           </div>
         )}
 
         {!isLoading &&
           !isError &&
-          activities.map((activity) => (
-            <Card key={activity.id} className="w-full max-h-1/2">
-              <CardHeader>
-                <CardTitle>{activity.nome}</CardTitle>
-                <div className="flex gap-3">
-                  <CardDescription className="flex gap-2">
-                    <CalendarClock size={18} />
-                    {activity.dataInicio}
-                  </CardDescription>
-                  <CardDescription className="flex gap-2">
-                    <CalendarMinus size={18} />
-                    {activity.dataFimPrevista}
-                  </CardDescription>
+          filteredActivities.map((activity) => (
+            <Card key={activity.id} className="w-full md:w-[48%] flex flex-col p-4">
+              <div className="flex justify-between items-start mb-2">
+                <CardTitle className="text-lg font-bold">{activity.nome}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className={`${statusColors[activity.status]} px-2 py-1 rounded text-xs font-semibold`}>{activity.status.replace(/_/g, " ")}</div>
+                  {activity.prioridade && (
+                    <div className={`${priorityColors[activity.prioridade]} px-2 py-1 rounded text-xs font-semibold`}> <Flag size={14} className="inline-block mr-1" />{activity.prioridade}</div>
+                  )}
+                  <ActivityMenu activityId={String(activity.id)} projectTitle={titulo} />
                 </div>
-                <CardAction>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`${
-                        statusColors[activity.status] || "bg-gray-500"
-                      } p-2 rounded-md font-semibold text-center`}
-                    >
-                      {activity.status}
-                    </div>
-                    <div>
-                      <ActivityMenu activityId = {String(activity.id)} projectTitle={titulo}/>
-                    </div>
-                  </div>
-                </CardAction>
-              </CardHeader>
-              <CardContent>{activity.descricao}</CardContent>
-              <CardFooter>{activity.responsavelEmail}</CardFooter>
+              </div>
+
+              <div className="flex flex-wrap text-sm text-gray-600 gap-4 mb-2">
+                <span className="flex items-center gap-1"><CalendarClock size={16} /> Início: {activity.dataInicio ? format(new Date(activity.dataInicio), "dd/MM/yyyy") : "N/A"}</span>
+                <span className="flex items-center gap-1"><CalendarMinus size={16} /> Previsto: {activity.dataFimPrevista ? format(new Date(activity.dataFimPrevista), "dd/MM/yyyy") : "N/A"}</span>
+                {activity.dataFimReal && (
+                  <span className="flex items-center gap-1"><CalendarMinus size={16} /> Real: {format(new Date(activity.dataFimReal), "dd/MM/yyyy")}</span>
+                )}
+              </div>
+
+              <CardContent className="px-0 text-sm text-gray-700">
+                <p className="flex gap-1"><FileText size={16} /> Descrição: {activity.descricao}</p>
+                {activity.avaliacao && (
+                  <p className="flex gap-1 mt-2"><BarChart size={16} /> Avaliação: {activity.avaliacao.replace(/_/g, " ")}</p>
+                )}
+                {activity.observacoes && (
+                  <p className="flex gap-1 mt-2"><MessageSquareText size={16} /> Observações: {activity.observacoes}</p>
+                )}
+              </CardContent>
+
+              <CardFooter className="px-0 mt-4 border-t pt-2 text-sm text-gray-800 flex justify-between">
+                <span className="flex items-center gap-1"><User size={16} /> {activity.responsavelEmail}</span>
+                {activity.avaliadorEmail && (
+                  <span className="flex items-center gap-1"><User size={16} /> {activity.avaliadorEmail}</span>
+                )}
+              </CardFooter>
             </Card>
           ))}
       </div>
