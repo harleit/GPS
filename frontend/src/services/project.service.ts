@@ -27,6 +27,13 @@ export const updateProjectByTitle = async (titulo: string, payload: any) => {
   return response.data;
 };
 
+
+export const deleteProjectByTitle = async (titulo: string) => {
+  const response = await api.delete(`/api/projeto/${encodeURIComponent(titulo)}`);
+  return response.data;
+};
+
+
 export const getActivityProject = async (titulo: string) => {
   try {
     const response = await api.get(`/api/projeto/${titulo}/atividades`);

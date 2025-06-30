@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import FormImage from "../../../assets/form-image.png";
 import { useNavigate } from "react-router-dom";
 import { KeyRound, Mail, User } from "lucide-react";
-import LogoSchedio from "../../../assets/logo-schedio.svg";
+
 
 const schema = z.object({
   userName: z
@@ -63,7 +63,7 @@ export function NewUser() {
         <h1 className = "text-[#3B63A8] font-bold text-2xl">Sched<span>io</span></h1>
       </div>
       <div className="flex justify-center items-center h-dvh">
-        <div className="flex justify-center  p-[10px]  rounded-lg shadow-lg gap-4">
+        <div className="flex justify-center  p-15  rounded-lg shadow-lg gap-4">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 w-1/2"
