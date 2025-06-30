@@ -170,7 +170,7 @@ export function ListProjectActivity() {
         {!isLoading &&
           !isError &&
           activities.map((activity) => (
-            <Card className="w-full max-h-1/2">
+            <Card key={activity.id} className="w-full max-h-1/2">
               <CardHeader>
                 <CardTitle>{activity.nome}</CardTitle>
                 <div className="flex gap-3">
