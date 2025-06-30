@@ -17,10 +17,9 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // Chave secreta para assinar o token. É ALTAMENTE recomendado que isso venha de uma variável de ambiente!
-    // Para fins de demonstração, colocamos aqui, mas em produção, use @Value("${jwt.secret}") e configure no application.properties
-    @Value("${jwt.secret:defaultSecretKeyForDevelopmentTestingOnlyAndShouldBeLongAndComplex}") // Valor padrão para desenvolvimento, altere para algo seguro!
-    private String SECRET_KEY; // A chave secreta deve ser forte (mínimo de 256 bits, 32 caracteres)
+    // Chave secreta para assinar o token.
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
