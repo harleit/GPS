@@ -83,6 +83,4 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(jwt, "Autenticação bem-sucedida!"));
     }
 
-    // Você pode querer adicionar um endpoint de teste para verificar se a autenticação funciona
-    // Ex: @GetMapping("/test/secured") @PreAuthorize("isAuthenticated()") public String securedEndpoint() { return "Acesso permitido!"; }
 }
