@@ -9,7 +9,6 @@ import FormImage from "../../../assets/form-image.png";
 import { useNavigate } from "react-router-dom";
 import { KeyRound, Mail, User } from "lucide-react";
 
-
 const schema = z.object({
   userName: z
     .string()
@@ -47,7 +46,7 @@ export function NewUser() {
         description: "O usuário foi criado com sucesso!",
       });
       reset();
-      navigate("project/new");
+      navigate("/login");
     } catch (error) {
       //Erro no envio
       toast.error("Erro ao criar usuário", {
@@ -59,8 +58,10 @@ export function NewUser() {
 
   return (
     <div>
-      <div className = "pt-1 pl-5">
-        <h1 className = "text-[#3B63A8] font-bold text-2xl">Sched<span>io</span></h1>
+      <div className="pt-1 pl-5">
+        <h1 className="text-[#3B63A8] font-bold text-2xl">
+          Sched<span>io</span>
+        </h1>
       </div>
       <div className="flex justify-center items-center h-dvh">
         <div className="flex justify-center  p-15  rounded-lg shadow-lg gap-4">
@@ -70,7 +71,9 @@ export function NewUser() {
           >
             {/* nome completo */}
             <div>
-              <h1 className = "text-center text-[#57a5d9] font-semibold text-2xl animate-pulse">Bem-vindo</h1>
+              <h1 className="text-center text-[#57a5d9] font-semibold text-2xl animate-pulse">
+                Bem-vindo
+              </h1>
               <div className="flex items-center gap-2">
                 <User size={18} className="text-blue-500" />
                 <label htmlFor="userName" className="block mb-2">
@@ -83,7 +86,9 @@ export function NewUser() {
                 className="w-full"
               />
               {errors.userName ? (
-                <p className="text-sm text-red-500">{errors.userName.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.userName.message}
+                </p>
               ) : (
                 <p className="text-sm text-blue-500">
                   Esse é o seu nome completo
@@ -105,7 +110,9 @@ export function NewUser() {
                 className="w-full"
               />
               {errors.userEmail ? (
-                <p className="text-sm text-red-500">{errors.userEmail.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.userEmail.message}
+                </p>
               ) : (
                 <p className="text-sm text-blue-500">
                   Esse será o seu Email cadastrado
@@ -135,7 +142,10 @@ export function NewUser() {
               )}
             </div>
             {/* Botão de submit */}
-            <Button className="cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors ease-in-out" type="submit">
+            <Button
+              className="cursor-pointer bg-blue-500 hover:bg-blue-600 transition-colors ease-in-out"
+              type="submit"
+            >
               Cadastrar
             </Button>
             <div className="flex w-full justify-between">
@@ -149,12 +159,11 @@ export function NewUser() {
             </div>
           </form>
           <div className="flex flex-col w-1/2 justify-around">
-      
             <div>
               <img
                 src={FormImage}
                 alt="Imagem de duas pessoas dando mãos"
-                className = ""
+                className=""
               />
             </div>
           </div>
