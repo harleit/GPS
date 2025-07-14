@@ -6,7 +6,6 @@ import {
 } from "./components/ui/resizable";
 import LogoSchedio from "../src/assets/logo-schedio.svg";
 import { SquareKanban } from "lucide-react";
-import { CircleUserRound } from "lucide-react";
 
 export function Layout() {
   const location = useLocation();
@@ -48,17 +47,6 @@ export function Layout() {
             >
               <SquareKanban />
               Projetos
-            </Link>
-            <Link
-              to="/profile"
-              className={`flex gap-4 items-center font-semibold text-white px-4 py-2 rounded-lg transition-colors duration-300 ${
-                location.pathname === "/profile"
-                  ? "bg-blue-800 rounded-lg p-2"
-                  : ""
-              }`}
-            >
-              <CircleUserRound />
-              Meu perfil
             </Link>
           </div>
           {/* Footer */}
