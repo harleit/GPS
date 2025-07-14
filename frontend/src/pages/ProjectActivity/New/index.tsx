@@ -6,14 +6,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getProjectUsers } from "@/services/project.service";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   CalendarPlus,
+  CheckCircle,
   FileText,
   FolderKanban,
   User,
 } from "lucide-react";
+import { useState } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 
@@ -53,6 +57,74 @@ export const projectActivitySchema = z.object({
 
 export type ProjectActivityFormData = z.infer<typeof projectActivitySchema>;
 
+// Componente de Autocomplete reutilizável para usuários
+const UserAutocomplete = ({
+  users,
+  field,
+  placeholder,
+}: {
+  users: any[];
+  field: any;
+  placeholder: string;
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const selectedUser = users.find((u) => u.email === field.value);
+
+  const filteredUsers = searchTerm
+    ? users.filter(
+        (user) =>
+          user.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
+  return (
+    <div className="relative">
+      {selectedUser ? (
+        <div className="flex items-center justify-between p-2 border rounded-md bg-gray-50">
+          <span>
+            {selectedUser.nomeCompleto} ({selectedUser.email})
+          </span>
+          <CheckCircle className="h-5 w-5 text-green-500" />
+        </div>
+      ) : (
+        <Input
+          {...field}
+          placeholder={placeholder}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)} // Delay para permitir o clique
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            field.onChange(e); // Mantém o RHF atualizado
+          }}
+          value={searchTerm}
+        />
+      )}
+
+      {showSuggestions && !selectedUser && filteredUsers.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 border rounded-md bg-white shadow-lg max-h-48 overflow-y-auto">
+          {filteredUsers.map((user) => (
+            <div
+              key={user.id}
+              className="p-2 cursor-pointer hover:bg-accent"
+              onClick={() => {
+                field.onChange(user.email);
+                setSearchTerm(user.nomeCompleto); // Preenche o input para feedback visual
+                setShowSuggestions(false);
+              }}
+            >
+              <p className="font-medium">{user.nomeCompleto}</p>
+              <p className="text-sm text-gray-500">{user.email}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface NewActivityFormProps {
   onSave: (data: ProjectActivityFormData) => void;
   formId: string;
@@ -86,6 +158,13 @@ export function NewProjectActivity({
     },
   });
 
+  // Busca os membros do projeto para usar no autocomplete
+  const { data: projectUsers = [], isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["project-users", currentProjetoTitulo],
+    queryFn: () => getProjectUsers(currentProjetoTitulo!),
+    enabled: !!currentProjetoTitulo,
+  });
+
   const processSubmit: SubmitHandler<ProjectActivityFormData> = (data) => {
     console.log("NewProjectActivity: processSubmit chamado com data:", data); // DEBUG
     onSave(data);
@@ -115,157 +194,57 @@ export function NewProjectActivity({
   return (
     <form
       id={formId}
-      onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)}
-      className="flex flex-col w-full"
+      onSubmit={handleSubmit(processSubmit)}
+      className="flex flex-col space-y-4"
     >
-      <div className="flex gap-8 items-center justify-center">
-        <div>
-          <div className="flex gap-2 items-center">
-            <FolderKanban className="text-blue-500" size={18} />
-            <label htmlFor="projectName" className="block mb-2">
-              Nome da Atividade
-            </label>
-          </div>
-          <Input
-            {...register("nome")}
-            placeholder="Digite o nome da atividade"
-            className="w-full" // Adapta o tamanho do input
-          />
-          {errors.nome ? (
-            <p className="text-sm text-red-500">{errors.nome.message}</p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Mínimo 3 | Máximo 50 caracteres.
-            </p>
-          )}
-        </div>
-
-        <div>
-          <div className="flex gap-2 items-center">
-            <FileText className="text-blue-500" size={18} />
-            <label htmlFor="descricao" className="block mb-2">
-              Descrição da atividade
-            </label>
-          </div>
-          <Input
-            {...register("descricao")}
-            placeholder="Digite a descrição da atividade"
-            className="w-full" // Adapta o tamanho do input
-          />
-          {errors.descricao ? (
-            <p className="text-sm text-red-500">{errors.descricao.message}</p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Mínimo 3 | Máximo 200 caracteres.
-            </p>
-          )}
-        </div>
+      {/* Nome da Atividade */}
+      <div className="flex flex-col space-y-2">
+        <label htmlFor="nome" className="flex items-center gap-2 font-medium">
+          <FileText size={16} /> Nome da Atividade
+        </label>
+        <Input
+          {...register("nome")}
+          placeholder="Ex: Desenvolver tela de login"
+        />
+        {errors.nome && (
+          <p className="text-sm text-red-500">{errors.nome.message}</p>
+        )}
       </div>
 
-      <div className="flex gap-8 items-center justify-center">
-        <div>
-          <div className="flex gap-2 items-center">
-            <CalendarPlus className="text-blue-500" size={18} />
-            <label htmlFor="dataInicio">Data Inicial</label>
-          </div>
-          <Input
-            {...register("dataInicio")}
-            placeholder="yyyy-mm-dd"
-            className="w-full"
-          />
-          {errors.dataInicio ? (
-            <p className="text-sm text-red-500">{errors.dataInicio.message}</p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Digite a data conforme o exemplo
-            </p>
-          )}
-        </div>
-
-        <div>
-          <div className="flex gap-2 items-center">
-            <CalendarPlus className="text-blue-500" size={18} />
-            <label htmlFor="dataFimPrevista">Data Final Prevista</label>
-          </div>
-          <Input
-            {...register("dataFimPrevista")}
-            placeholder="yyyy-mm-dd"
-            className="w-full"
-          />
-          {errors.dataFimPrevista ? (
-            <p className="text-sm text-red-500">
-              {errors.dataFimPrevista.message}
-            </p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Digite a data conforme o exemplo
-            </p>
-          )}
-        </div>
+      {/* Descrição */}
+      <div className="flex flex-col space-y-2">
+        <label
+          htmlFor="descricao"
+          className="flex items-center gap-2 font-medium"
+        >
+          <FileText size={16} /> Descrição
+        </label>
+        <Input
+          {...register("descricao")}
+          placeholder="Descreva os detalhes da tarefa..."
+        />
+        {errors.descricao && (
+          <p className="text-sm text-red-500">{errors.descricao.message}</p>
+        )}
       </div>
 
-      <div className="flex gap-8 items-center justify-center">
-        {/* Campo GERENTE */}
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 items-center">
-            <User className="text-blue-500" size={18} />
-            <label htmlFor="responsavelEmail">Responsável</label>
-          </div>
-          <Input
-            {...register("responsavelEmail")}
-            placeholder="Email do responsavel"
-            className="w-full"
-          />
-          {errors.responsavelEmail ? (
-            <p className="text-sm text-red-500">
-              {errors.responsavelEmail.message}
-            </p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Digite o e-mail do responsável da atividade.
-            </p>
-          )}
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2 items-center">
-            <User className="text-blue-500" size={18} />
-            <label htmlFor="avaliadorEmail">Avaliador</label>
-          </div>
-          <Input
-            {...register("avaliadorEmail")}
-            placeholder="Email do avaliador"
-            className="w-full"
-          />
-          {errors.avaliadorEmail ? (
-            <p className="text-sm text-red-500">
-              {errors.avaliadorEmail.message}
-            </p>
-          ) : (
-            <p className="text-sm text-blue-500">
-              Digite o e-mail do avaliador da atividade.
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Campo de Status */}
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2 items-center">
-          <Activity className="text-blue-500" size={18} />
-          <label htmlFor="status">Status</label>
-        </div>
+      {/* Status */}
+      <div className="flex flex-col space-y-2">
+        <label htmlFor="status" className="flex items-center gap-2 font-medium">
+          <Activity size={16} /> Status
+        </label>
         <Controller
           name="status"
           control={control}
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className="w-1/2">
+              <SelectTrigger>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pendente">Pendente</SelectItem>
                 <SelectItem value="em_andamento">Em andamento</SelectItem>
-                <SelectItem value="concluido">Concluído</SelectItem>
+                <SelectItem value="concluida">Concluída</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -274,6 +253,94 @@ export function NewProjectActivity({
           <p className="text-sm text-red-500">{errors.status.message}</p>
         )}
       </div>
+
+      {/* Data de Início */}
+      <div className="flex flex-col space-y-2">
+        <label
+          htmlFor="dataInicio"
+          className="flex items-center gap-2 font-medium"
+        >
+          <CalendarPlus size={16} /> Data de Início
+        </label>
+        <Input {...register("dataInicio")} type="date" />
+        {errors.dataInicio && (
+          <p className="text-sm text-red-500">{errors.dataInicio.message}</p>
+        )}
+      </div>
+
+      {/* Data Final Prevista */}
+      <div className="flex flex-col space-y-2">
+        <label
+          htmlFor="dataFimPrevista"
+          className="flex items-center gap-2 font-medium"
+        >
+          <CalendarPlus size={16} /> Previsão de Término
+        </label>
+        <Input {...register("dataFimPrevista")} type="date" />
+        {errors.dataFimPrevista && (
+          <p className="text-sm text-red-500">
+            {errors.dataFimPrevista.message}
+          </p>
+        )}
+      </div>
+
+      {/* Responsável (Autocomplete) */}
+      <div className="flex flex-col space-y-2">
+        <label
+          htmlFor="responsavelEmail"
+          className="flex items-center gap-2 font-medium"
+        >
+          <User size={16} /> Responsável
+        </label>
+        <Controller
+          name="responsavelEmail"
+          control={control}
+          render={({ field }) => (
+            <UserAutocomplete
+              users={projectUsers}
+              field={field}
+              placeholder="Buscar responsável..."
+            />
+          )}
+        />
+        {errors.responsavelEmail && (
+          <p className="text-sm text-red-500">
+            {errors.responsavelEmail.message}
+          </p>
+        )}
+      </div>
+
+      {/* Avaliador (Autocomplete) */}
+      <div className="flex flex-col space-y-2">
+        <label
+          htmlFor="avaliadorEmail"
+          className="flex items-center gap-2 font-medium"
+        >
+          <User size={16} /> Avaliador
+        </label>
+        <Controller
+          name="avaliadorEmail"
+          control={control}
+          render={({ field }) => (
+            <UserAutocomplete
+              users={projectUsers}
+              field={field}
+              placeholder="Buscar avaliador..."
+            />
+          )}
+        />
+        {errors.avaliadorEmail && (
+          <p className="text-sm text-red-500">
+            {errors.avaliadorEmail.message}
+          </p>
+        )}
+      </div>
+
+      {isLoadingUsers && (
+        <p className="text-sm text-gray-500">
+          Carregando membros do projeto...
+        </p>
+      )}
     </form>
   );
 }
