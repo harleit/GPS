@@ -87,7 +87,7 @@ export function NewProject() {
       };
 
       // Chame o serviço para criar o projeto
- 
+
       await createProject(payload);
 
       // Sucesso
@@ -102,39 +102,6 @@ export function NewProject() {
       });
       console.error("Erro:", error);
     }
-  };
-
-  // Função de formatação revisada
-  const formatDateString = (value: string): string => {
-    // Remove todos os caracteres não numéricos
-    const clean = value.replace(/[^0-9]/g, "");
-    // Limita a 8 dígitos (YYYYMMDD)
-    const digits = clean.slice(0, 8);
-    let formatted = "";
-
-    // Parte do ano (4 dígitos)
-    const year = digits.slice(0, 4);
-    formatted += year;
-
-    // Adiciona o primeiro hífen após o ano, se houver pelo menos 4 dígitos
-    if (year.length === 4) {
-      formatted += "-";
-    }
-
-    // Parte do mês (2 dígitos)
-    const month = digits.slice(4, 6).padStart(2, "0");
-    formatted += month;
-
-    // Adiciona o segundo hífen após o mês, se houver pelo menos 6 dígitos
-    if (digits.length >= 6) {
-      formatted += "-";
-    }
-
-    // Parte do dia (2 dígitos)
-    const day = digits.slice(6, 8).padStart(2, "0");
-    formatted += day;
-
-    return formatted;
   };
 
   return (
@@ -196,13 +163,7 @@ export function NewProject() {
             {...register("projectInitialDate")}
             placeholder="yyyy-mm-dd"
             className="w-full"
-            onChange={(e) => {
-              const rawValue = e.target.value;
-              const formattedValue = formatDateString(rawValue);
-              // Atualiza o formulário com o valor formatado
-              const { onChange } = register("projectInitialDate");
-              onChange({ target: { value: formattedValue } });
-            }}
+            type="date"
           />
           {errors.projectInitialDate && (
             <p className="text-sm text-red-500">
@@ -262,7 +223,10 @@ export function NewProject() {
         </div>
 
         {/* Botão de submit */}
-        <Button className="cursor-pointer,  transition-colors ease-in-out bg-blue-500 hover:bg-blue-600 cursor-pointer" type="submit">
+        <Button
+          className="cursor-pointer,  transition-colors ease-in-out bg-blue-500 hover:bg-blue-600 cursor-pointer"
+          type="submit"
+        >
           Cadastrar
         </Button>
       </form>
