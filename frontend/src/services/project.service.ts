@@ -2,6 +2,13 @@ import api from "@/lib/api";
 import type { ProjectActivityFormData } from "@/pages/ProjectActivity/New";
 import { AxiosError } from "axios";
 
+// Interface para definir os parâmetros de filtro
+interface ListProjectsParams {
+  titulo?: string;
+  usuarioEmail?: string;
+  status?: string;
+}
+
 export const createProject = async (data: any) => {
   try {
     const response = await api.post("/api/projeto", data);
@@ -12,9 +19,17 @@ export const createProject = async (data: any) => {
   }
 };
 
-export const listProjects = async () => {
+export const listProjects = async (params: ListProjectsParams = {}) => {
   try {
-    const response = await api.get("/api/projeto");
+    const { titulo, usuarioEmail, status } = params;
+
+    // Remove parâmetros vazios para não poluir a URL
+    const queryParams = {
+      titulo: titulo || undefined,
+      usuarioEmail: usuarioEmail || undefined,
+      status: status || undefined,
+    };
+    const response = await api.get("/api/projeto", { params: queryParams });
     return response.data;
   } catch (error) {
     console.error("Erro na busca de dados", AxiosError);
@@ -22,17 +37,32 @@ export const listProjects = async () => {
   }
 };
 
-export const updateProjectByTitle = async (titulo: string, payload: any) => {
-  const response = await api.put(`/api/projeto/${encodeURIComponent(titulo)}`, payload);
-  return response.data;
+export const getProjectByTitle = async (titulo: string) => {
+  try {
+    const response = await api.get(
+      `/api/projeto/${encodeURIComponent(titulo)}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar o projeto", error);
+    throw error;
+  }
 };
 
+export const updateProjectByTitle = async (titulo: string, payload: any) => {
+  const response = await api.put(
+    `/api/projeto/${encodeURIComponent(titulo)}`,
+    payload
+  );
+  return response.data;
+};
 
 export const deleteProjectByTitle = async (titulo: string) => {
-  const response = await api.delete(`/api/projeto/${encodeURIComponent(titulo)}`);
+  const response = await api.delete(
+    `/api/projeto/${encodeURIComponent(titulo)}`
+  );
   return response.data;
 };
-
 
 export const getActivityProject = async (titulo: string) => {
   try {
@@ -55,14 +85,14 @@ export const createProjectActivity = async (data: ProjectActivityFormData) => {
 };
 
 export const deleteProjectActivityById = async (id: string) => {
-  try{
-    const response = await api.delete(`/api/atividade/${id}`); 
+  try {
+    const response = await api.delete(`/api/atividade/${id}`);
     return response.data;
-  } catch(error){
-    console.error("Erro ao deletar a atividade", error); 
-    throw error; 
+  } catch (error) {
+    console.error("Erro ao deletar a atividade", error);
+    throw error;
   }
-}
+};
 
 export const getProjectActivityById = async (id: string) => {
   try {
@@ -83,6 +113,45 @@ export const updateProjectActivityById = async (
     return response.data;
   } catch (error) {
     console.error("Erro ao atualizar atividade", error);
+    throw error;
+  }
+};
+
+export const getProjectUsers = async (titulo: string) => {
+  try {
+    const response = await api.get(
+      `/api/projeto/${encodeURIComponent(titulo)}/usuarios`
+    );
+    return response.data || []; // Garante que retorne um array
+  } catch (error) {
+    console.error("Erro ao buscar usuários do projeto", error);
+    throw error;
+  }
+};
+
+export const addUsersToProject = async (titulo: string, emails: string[]) => {
+  try {
+    const response = await api.post(
+      `/api/projeto/${encodeURIComponent(titulo)}/usuarios`,
+      emails
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao adicionar usuários ao projeto", error);
+    throw error;
+  }
+};
+
+export const removeUsersFromProject = async (titulo: string, email: string) => {
+  try {
+    // O backend espera uma lista de e-mails, então enviamos um array com um e-mail
+    const response = await api.delete(
+      `/api/projeto/${encodeURIComponent(titulo)}/usuarios`,
+      { data: [email] }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao remover usuário do projeto", error);
     throw error;
   }
 };
