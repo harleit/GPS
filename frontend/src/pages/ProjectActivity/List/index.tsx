@@ -1,15 +1,7 @@
 // harleit/gps/GPS-b885fdf8f7de3f14d31842ccfa48446b797a40c8/frontend/src/pages/ProjectActivity/List/index.tsx
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   createProjectActivity,
   getActivityProject,
@@ -23,6 +15,7 @@ import {
   BarChart,
   Flag,
   FileText,
+  Users,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
@@ -40,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { ActivityMenu } from "./ActivityMenu";
 import { format } from "date-fns";
+import { ManageProjectUsers } from "@/pages/Project/List/components/ManageProjectUsers";
 
 type ProjectStatusType = "pendente" | "em_andamento" | "concluida";
 type ActivityEvaluationType =
@@ -90,7 +84,8 @@ export function ListProjectActivity() {
   } = useQuery<ProjectActivity[], Error>({
     queryKey: ["project-activities", titulo],
     queryFn: () => {
-      if (!titulo) return Promise.reject(new Error("Título do projeto não fornecido."));
+      if (!titulo)
+        return Promise.reject(new Error("Título do projeto não fornecido."));
       return getActivityProject(titulo);
     },
     enabled: !!titulo,
@@ -100,7 +95,9 @@ export function ListProjectActivity() {
     try {
       await createProjectActivity(data);
       setIsDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["project-activities", titulo] });
+      queryClient.invalidateQueries({
+        queryKey: ["project-activities", titulo],
+      });
     } catch (error) {
       console.error("Erro ao salvar atividade:", error);
     }
@@ -112,28 +109,54 @@ export function ListProjectActivity() {
       activity.nome.toLowerCase().includes(term) ||
       activity.descricao.toLowerCase().includes(term) ||
       activity.responsavelEmail.toLowerCase().includes(term) ||
-      (activity.avaliadorEmail && activity.avaliadorEmail.toLowerCase().includes(term))
+      (activity.avaliadorEmail &&
+        activity.avaliadorEmail.toLowerCase().includes(term))
     );
   });
 
   if (!titulo) {
-    return <div className="w-full text-center py-10">Título do projeto não especificado na URL.</div>;
+    return (
+      <div className="w-full text-center py-10">
+        Título do projeto não especificado na URL.
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col w-full h-full gap-5">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-        <h1 className="text-xl font-semibold">Atividades do Projeto: {titulo}</h1>
+        <h1 className="text-xl font-semibold">
+          Atividades do Projeto: {titulo}
+        </h1>
+        {/* Botão para Gerenciar Membros */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Adicionar Membros
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Gerenciar Membros</DialogTitle>
+            </DialogHeader>
+            {titulo && <ManageProjectUsers titulo={titulo} />}
+          </DialogContent>
+        </Dialog>
+
+        {/* Botão para Nova Atividade */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-blue-500 hover:bg-blue-600 transition-colors">
               Nova atividade
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-11/12 md:w-1/2">
+          <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Nova Atividade - {titulo}</DialogTitle>
-              <DialogDescription>Adicione uma nova atividade ao projeto.</DialogDescription>
+              <DialogDescription>
+                Adicione uma nova atividade ao projeto.
+              </DialogDescription>
             </DialogHeader>
             <NewProjectActivity
               onSave={handleSaveActivity}
@@ -144,7 +167,11 @@ export function ListProjectActivity() {
               <DialogClose asChild>
                 <Button variant="outline">Cancelar</Button>
               </DialogClose>
-              <Button type="submit" form="newActivityForm" className="bg-blue-500 hover:bg-blue-600">
+              <Button
+                type="submit"
+                form="newActivityForm"
+                className="bg-blue-500 hover:bg-blue-600"
+              >
                 Salvar
               </Button>
             </DialogFooter>
@@ -172,40 +199,87 @@ export function ListProjectActivity() {
         {!isLoading &&
           !isError &&
           filteredActivities.map((activity) => (
-            <Card key={activity.id} className="w-full md:w-[48%] flex flex-col p-4">
+            <Card
+              key={activity.id}
+              className="w-full md:w-[48%] flex flex-col p-4"
+            >
               <div className="flex justify-between items-start mb-2">
-                <CardTitle className="text-lg font-bold">{activity.nome}</CardTitle>
+                <CardTitle className="text-lg font-bold">
+                  {activity.nome}
+                </CardTitle>
                 <div className="flex items-center gap-2">
-                  <div className={`${statusColors[activity.status]} px-2 py-1 rounded text-xs font-semibold`}>{activity.status.replace(/_/g, " ")}</div>
+                  <div
+                    className={`${
+                      statusColors[activity.status]
+                    } px-2 py-1 rounded text-xs font-semibold`}
+                  >
+                    {activity.status.replace(/_/g, " ")}
+                  </div>
                   {activity.prioridade && (
-                    <div className={`${priorityColors[activity.prioridade]} px-2 py-1 rounded text-xs font-semibold`}> <Flag size={14} className="inline-block mr-1" />{activity.prioridade}</div>
+                    <div
+                      className={`${
+                        priorityColors[activity.prioridade]
+                      } px-2 py-1 rounded text-xs font-semibold`}
+                    >
+                      {" "}
+                      <Flag size={14} className="inline-block mr-1" />
+                      {activity.prioridade}
+                    </div>
                   )}
-                  <ActivityMenu activityId={String(activity.id)} projectTitle={titulo} />
+                  <ActivityMenu
+                    activityId={String(activity.id)}
+                    projectTitle={titulo}
+                  />
                 </div>
               </div>
 
               <div className="flex flex-wrap text-sm text-gray-600 gap-4 mb-2">
-                <span className="flex items-center gap-1"><CalendarClock size={16} /> Início: {activity.dataInicio ? format(new Date(activity.dataInicio), "dd/MM/yyyy") : "N/A"}</span>
-                <span className="flex items-center gap-1"><CalendarMinus size={16} /> Previsto: {activity.dataFimPrevista ? format(new Date(activity.dataFimPrevista), "dd/MM/yyyy") : "N/A"}</span>
+                <span className="flex items-center gap-1">
+                  <CalendarClock size={16} /> Início:{" "}
+                  {activity.dataInicio
+                    ? format(new Date(activity.dataInicio), "dd/MM/yyyy")
+                    : "N/A"}
+                </span>
+                <span className="flex items-center gap-1">
+                  <CalendarMinus size={16} /> Previsto:{" "}
+                  {activity.dataFimPrevista
+                    ? format(new Date(activity.dataFimPrevista), "dd/MM/yyyy")
+                    : "N/A"}
+                </span>
                 {activity.dataFimReal && (
-                  <span className="flex items-center gap-1"><CalendarMinus size={16} /> Real: {format(new Date(activity.dataFimReal), "dd/MM/yyyy")}</span>
+                  <span className="flex items-center gap-1">
+                    <CalendarMinus size={16} /> Real:{" "}
+                    {format(new Date(activity.dataFimReal), "dd/MM/yyyy")}
+                  </span>
                 )}
               </div>
 
               <CardContent className="px-0 text-sm text-gray-700">
-                <p className="flex gap-1"><FileText size={16} /> Descrição: {activity.descricao}</p>
+                <p className="flex gap-1">
+                  <FileText size={16} /> Descrição: {activity.descricao}
+                </p>
                 {activity.avaliacao && (
-                  <p className="flex gap-1 mt-2"><BarChart size={16} /> Avaliação: {activity.avaliacao.replace(/_/g, " ")}</p>
+                  <p className="flex gap-1 mt-2">
+                    <BarChart size={16} /> Avaliação:{" "}
+                    {activity.avaliacao.replace(/_/g, " ")}
+                  </p>
                 )}
                 {activity.observacoes && (
-                  <p className="flex gap-1 mt-2"><MessageSquareText size={16} /> Observações: {activity.observacoes}</p>
+                  <p className="flex gap-1 mt-2">
+                    <MessageSquareText size={16} /> Observações:{" "}
+                    {activity.observacoes}
+                  </p>
                 )}
               </CardContent>
 
               <CardFooter className="px-0 mt-4 border-t pt-2 text-sm text-gray-800 flex justify-between">
-                <span className="flex items-center gap-1"><User size={16} /> {activity.responsavelEmail}</span>
+                <span className="flex items-center gap-1">
+                  <User size={16} /> {activity.responsavelEmail}
+                </span>
                 {activity.avaliadorEmail && (
-                  <span className="flex items-center gap-1"><User size={16} /> {activity.avaliadorEmail}</span>
+                  <span className="flex items-center gap-1">
+                    <User size={16} /> {activity.avaliadorEmail}
+                  </span>
                 )}
               </CardFooter>
             </Card>
