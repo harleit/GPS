@@ -6,10 +6,12 @@ import com.now.schedio.dto.ProjetoOutputDTO;
 import com.now.schedio.dto.UsuarioOutputDTO;
 import com.now.schedio.model.Atividade;
 import com.now.schedio.model.Projeto;
+import com.now.schedio.security.jwt.JwtUtil;
 import com.now.schedio.service.ProjetoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +30,9 @@ public class ProjetoController {
 
     @Autowired
     ProjetoService projetoService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /*@Operation(summary = "Listar todos os projetos")
     @GetMapping
@@ -51,12 +56,16 @@ public class ProjetoController {
     public ResponseEntity<List<ProjetoOutputDTO>> listarProjetosComFiltro(
             @Parameter(description = "Status do projeto para filtrar (ex: 'planejado', 'em_andamento')")
             @RequestParam(required = false) String status,
-            @Parameter(description = "Email do usuário (gerente ou participante) para filtrar projetos")
-            @RequestParam(required = false) String usuarioEmail,
+            HttpServletRequest request,
             @Parameter(description = "Titulo para filtrar projetos")
             @RequestParam(required = false) String titulo
     ) {
         try {
+            final String authorizationHeader = request.getHeader("Authorization");
+            String usuarioEmail;
+            String jwt;
+            jwt = authorizationHeader.substring(7);
+            usuarioEmail = jwtUtil.extractUsername(jwt);
             List<Projeto> projetosEncontrados = projetoService.findProjetosByCriteria(titulo, status, usuarioEmail);
 
             if (projetosEncontrados.isEmpty()) {

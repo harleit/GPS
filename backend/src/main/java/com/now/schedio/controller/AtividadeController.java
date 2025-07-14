@@ -2,9 +2,11 @@ package com.now.schedio.controller;
 
 import com.now.schedio.dto.AtividadeInputDTO;
 import com.now.schedio.dto.AtividadeOutputDTO;
+import com.now.schedio.security.jwt.JwtUtil;
 import com.now.schedio.service.AtividadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +25,10 @@ public class AtividadeController {
 
     @Autowired
     private AtividadeService atividadeService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
 
     @Operation(summary = "Listar todas as atividades")
     @GetMapping
@@ -69,13 +75,20 @@ public class AtividadeController {
     @PutMapping(value = "/{id}/avaliar", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AtividadeOutputDTO> avaliarAtividade(
             @PathVariable Long id,
-            @RequestBody Map<String, String> input
+            @RequestBody Map<String, String> input,
+            HttpServletRequest request
     ) {
         try {
+            final String authorizationHeader = request.getHeader("Authorization");
+            String usuarioEmail = null; // Inicialize com null
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String jwt = authorizationHeader.substring(7);
+                usuarioEmail = jwtUtil.extractUsername(jwt);
+            }
             String avaliacao = input.get("avaliacao");
             String observacoes = input.get("observacoes");
 
-            AtividadeOutputDTO atividadeDTO = atividadeService.avaliarAtividade(id, avaliacao, observacoes);
+            AtividadeOutputDTO atividadeDTO = atividadeService.avaliarAtividade(id, avaliacao, observacoes, usuarioEmail);
 
             if (atividadeDTO != null) {
                 return new ResponseEntity<>(atividadeDTO, HttpStatus.OK);
@@ -83,6 +96,7 @@ public class AtividadeController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

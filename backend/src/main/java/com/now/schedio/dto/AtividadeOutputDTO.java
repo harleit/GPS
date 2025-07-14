@@ -66,4 +66,20 @@ public class AtividadeOutputDTO {
     public String getResponsavelEmail() {
         return responsavelEmail;
     }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
+    public String getAvaliacao() {
+        return avaliacao;
+    }
+
+    public void setAvaliacao(String avaliacao) {
+        this.avaliacao = avaliacao;
+    }
 }
