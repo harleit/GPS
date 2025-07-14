@@ -20,6 +20,7 @@ import {
   FolderKanban,
   User,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
   projectName: z
@@ -61,6 +62,8 @@ const schema = z.object({
 });
 
 export function NewProject() {
+  let navigate = useNavigate();
+
   const {
     control,
     register,
@@ -95,6 +98,7 @@ export function NewProject() {
         description: "Seu projeto foi criado com sucesso!",
       });
       reset(); // Limpa o formulário
+      navigate("/project"); // Redireciona para a lista de projetos
     } catch (error) {
       // Erro no envio
       toast.error("Erro ao criar projeto", {
