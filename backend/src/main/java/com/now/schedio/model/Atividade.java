@@ -116,9 +116,9 @@ public class Atividade {
     }
 
     public void setAvaliacao(String avaliacao) {
-        if (!status.equals("nao_concluida") &&
-                !status.equals("concluida_com_observacoes") &&
-                !status.equals("concluida")) {
+        if (!avaliacao.equals("nao_concluida") &&
+                !avaliacao.equals("concluida_com_observacoes") &&
+                !avaliacao.equals("concluida")) {
             throw new IllegalArgumentException("Avaliacao inválida: " + avaliacao);
         }
         this.avaliacao = avaliacao;
