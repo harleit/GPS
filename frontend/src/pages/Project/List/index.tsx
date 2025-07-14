@@ -13,7 +13,16 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import NoDataFound from "../../../assets/data-not-found.png";
 import { ProjectMenu } from "./ProjectMenu";
-import { Calendar, ContactRound, Plus, Text } from "lucide-react";
+import { Calendar, ContactRound, Plus, Search, Text } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
 
 type ProjectStatusType =
   | "planejado"
@@ -37,7 +46,8 @@ const statusColors: {
   cancelado: string;
 } = {
   planejado: "border-2 border-solid text-sm border-blue-500 text-blue-500",
-  em_andamento: "border-2 border-solid text-sm border-yellow-500 text-yellow-500",
+  em_andamento:
+    "border-2 border-solid text-sm border-yellow-500 text-yellow-500",
   concluido: "border-2 border-solid text-sm border-green-500 text-green-500",
   cancelado: "border-2 border-solid text-sm border-red-500 text-red-500",
 };
@@ -45,13 +55,24 @@ const statusColors: {
 export function ListProjects() {
   let navigate = useNavigate();
 
+  // Estados separados para cada filtro
+  const [titleFilter, setTitleFilter] = useState("");
+  const [emailFilter, setEmailFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
   const {
     data: projectsData,
     isLoading,
     isError,
   } = useQuery<Project[], Error>({
-    queryKey: ["projects"],
-    queryFn: listProjects,
+    queryKey: ["projects", titleFilter, emailFilter, statusFilter],
+    queryFn: () =>
+      listProjects({
+        titulo: titleFilter,
+        usuarioEmail: emailFilter,
+        status: statusFilter,
+      }),
+    placeholderData: (prevData) => prevData,
   });
 
   const projects = projectsData || [];
@@ -64,10 +85,38 @@ export function ListProjects() {
           className=" flex  items-center bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors ease-in-out"
           onClick={() => navigate("new")}
         >
-          <Plus/>
+          <Plus />
           Novo projeto
         </Button>
       </div>
+
+      {/* Seção de Filtros */}
+      <div className="flex gap-4">
+        <Input
+          placeholder="Filtrar por título..."
+          value={titleFilter}
+          onChange={(e) => setTitleFilter(e.target.value)}
+        />
+        <Input
+          placeholder="Filtrar por e-mail do gerente..."
+          value={emailFilter}
+          onChange={(e) => setEmailFilter(e.target.value)}
+        />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filtrar por status" />
+          </SelectTrigger>
+          <SelectContent>
+            {/* O valor "all" foi removido e substituído por uma string vazia */}
+            <SelectItem value=" ">Todos os Status</SelectItem>
+            <SelectItem value="planejado">Planejado</SelectItem>
+            <SelectItem value="em_andamento">Em andamento</SelectItem>
+            <SelectItem value="concluido">Concluído</SelectItem>
+            <SelectItem value="cancelado">Cancelado</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="flex flex-wrap justify-center w-full h-11/12 gap-3 py-3 overflow-y-auto overflow-x-hidden ">
         {isLoading && <div>Carregando projetos...</div>}
 
@@ -83,7 +132,10 @@ export function ListProjects() {
         {!isLoading &&
           !isError &&
           projects.map((project) => (
-            <Card key={project.id} className="md:w-[45%] sm:w-[20%]  max-h-1/2 transition-colors duration-300 ease-in-out hover:bg-gray-100 ">
+            <Card
+              key={project.id}
+              className="md:w-[45%] sm:w-[20%]  max-h-1/2 transition-colors duration-300 ease-in-out hover:bg-gray-100 "
+            >
               <CardHeader>
                 <CardTitle
                   onClick={() => navigate(`/activity/${project.titulo}`)}
@@ -93,30 +145,35 @@ export function ListProjects() {
                 </CardTitle>
                 <CardDescription>
                   <div>
-                  <div className = "flex items-center justify-center gap-1  p-1 rounded  w-fit border-gray-500"><Calendar size={18}/>{project.dataInicio}</div>
-                </div></CardDescription>
+                    <div className="flex items-center justify-center gap-1  p-1 rounded  w-fit border-gray-500">
+                      <Calendar size={18} />
+                      {project.dataInicio}
+                    </div>
+                  </div>
+                </CardDescription>
                 <CardAction>
                   <div className="flex items-center gap-2">
                     <div
-                      className={`${statusColors[project.status] || "bg-red-300"
-                        } p-1 rounded-md text-center`}
+                      className={`${
+                        statusColors[project.status] || "bg-red-300"
+                      } p-1 rounded-md text-center`}
                     >
                       {project.status}
                     </div>
                     <div>
-                      <ProjectMenu/>
+                      <ProjectMenu titulo={project.titulo} />
                     </div>
                   </div>
                 </CardAction>
-
               </CardHeader>
-              <CardContent className = "flex items-start gap-1">
-                <Text size = {18}/>
+              <CardContent className="flex items-start gap-1">
+                <Text size={18} />
                 Descrição: {project.descricao}
-                </CardContent>
-              <CardFooter className = "flex items-center gap-1">
-                <ContactRound size = {18} />Responsável: {project.gerente}
-                </CardFooter>
+              </CardContent>
+              <CardFooter className="flex items-center gap-1">
+                <ContactRound size={18} />
+                Responsável: {project.gerente}
+              </CardFooter>
             </Card>
           ))}
       </div>
