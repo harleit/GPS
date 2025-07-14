@@ -1,15 +1,18 @@
 import * as Popover from "@radix-ui/react-popover";
 import { Ellipsis, Pencil, Trash2 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { deleteProjectByTitle } from "@/services/project.service";
 
-export function ProjectMenu() {
+interface ProjectMenuProps {
+  titulo: string;
+}
+
+export function ProjectMenu({ titulo }: ProjectMenuProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { titulo } = useParams<{ titulo: string }>();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -43,7 +46,9 @@ export function ProjectMenu() {
         >
           <button
             className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded-md flex items-center gap-2 text-sm hover:cursor-pointer"
-            onClick={() => navigate("edit")}
+            onClick={() =>
+              navigate(`/project/edit/${encodeURIComponent(titulo)}`)
+            }
           >
             <Pencil className="w-4 h-4" />
             Editar
