@@ -12,6 +12,7 @@ public class AtividadeOutputDTO {
     private String status;
     private String projetoTitulo;
     private String responsavelEmail;
+    private String avaliadorEmail;
     private String avaliacao;
     private String observacoes;
     private String prioridade;
@@ -26,6 +27,7 @@ public class AtividadeOutputDTO {
         this.status = atividade.getStatus();
         this.projetoTitulo = atividade.getProjeto() != null ? atividade.getProjeto().getTitulo() : null;
         this.responsavelEmail = atividade.getResponsavel() != null ? atividade.getResponsavel().getEmail() : null;
+        this.avaliadorEmail = atividade.getAvaliador() != null ? atividade.getAvaliador().getEmail() : null;
         this.avaliacao = atividade.getAvaliacao() != null ? atividade.getAvaliacao() : null;
         this.observacoes = atividade.getObservacoes() != null ? atividade.getObservacoes() : null;
         this.prioridade = atividade.getPrioridade() != null ? atividade.getPrioridade() : null;;
@@ -81,5 +83,13 @@ public class AtividadeOutputDTO {
 
     public void setAvaliacao(String avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public String getAvaliadorEmail() {
+        return avaliadorEmail;
+    }
+
+    public void setAvaliadorEmail(String avaliadorEmail) {
+        this.avaliadorEmail = avaliadorEmail;
     }
 }
