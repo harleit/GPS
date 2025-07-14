@@ -27,6 +27,8 @@ public class AtividadeService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+
+
     // Método para listar todas as atividades
     public List<AtividadeOutputDTO> list() {
         List<Atividade> atividades = atividadeRepository.findAll();
@@ -83,10 +85,10 @@ public class AtividadeService {
     }
 
     // Método para avaliar uma atividade existente
-    public AtividadeOutputDTO avaliarAtividade(Long id, String avaliacao, String observacoes) {
+    public AtividadeOutputDTO avaliarAtividade(Long id, String avaliacao, String observacoes, String usuarioEmail) {
         Atividade atividadeExistente = atividadeRepository.findById(id).orElse(null);
 
-        if (atividadeExistente != null) {
+        if (atividadeExistente != null && atividadeExistente.getAvaliador().getEmail().equals(usuarioEmail)) {
             atividadeExistente.setAvaliacao(avaliacao);
             atividadeExistente.setObservacoes(observacoes);
 
