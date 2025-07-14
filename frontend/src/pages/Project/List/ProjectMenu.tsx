@@ -22,7 +22,7 @@ export function ProjectMenu({ titulo }: ProjectMenuProps) {
     onSuccess: () => {
       toast.success("Projeto excluído com sucesso.");
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      navigate("/projetos"); // ajuste o caminho conforme sua rota de listagem
+      navigate("/project"); // ajuste o caminho conforme sua rota de listagem
     },
     onError: () => {
       toast.error("Erro ao excluir projeto.");
